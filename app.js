@@ -1397,13 +1397,15 @@ if ("serviceWorker" in navigator) {
     .catch((err) => console.error("🚨 Service Worker Error:", err));
 }
 
-// ✅ DOM Elements (Defined after DOM loads)
+// ✅ DOM Elements (Get after DOM loads)
 let recipeInput, categoryInput, ingredientsInput, addRecipeBtn;
 let recipeList, categoryFilter, ingredientFilter, filterBtn;
 let chatInput, chatSend, chatHistory;
 
 let genAI;
 let model;
+
+// -----------------------🧠 GOOGLE GEMINI AI -----------------------
 
 // ✅ 1. Fetch Google Gemini API Key from Firestore
 async function getApiKey() {
@@ -1427,7 +1429,7 @@ async function getApiKey() {
   }
 }
 
-// ✅ 2. Google AI Chatbot Function
+// ✅ 2. Google AI Chatbot Function (Improved Response Parsing)
 async function askChatBot(request) {
   if (!model) {
     appendMessage("AI is initializing... Please wait.");
@@ -1438,26 +1440,34 @@ async function askChatBot(request) {
     appendMessage(`🧑‍💻 You: ${request}`);
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    const result = await model.generateContent(request);
+    // ✅ Ask AI with Proper Content Formatting
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: request }] }],
+    });
+
     console.log("🟡 AI Full Response:", result);
 
-    if (result?.candidates && result.candidates[0]?.content?.parts) {
-      const aiResponse = result.candidates[0].content.parts
+    // ✅ Properly Extract AI Response
+    let aiResponse = "";
+    if (
+      result?.candidates &&
+      result.candidates[0]?.content?.parts?.length > 0
+    ) {
+      aiResponse = result.candidates[0].content.parts
         .map((part) => part.text)
         .join("\n");
-      appendMessage(`🤖 AI: ${aiResponse}`);
     } else {
-      appendMessage("🚨 Chatbot: No valid response from AI.");
+      aiResponse = "🚫 No meaningful response from AI.";
     }
+
+    appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
     console.error("🚨 Chatbot Error:", error);
-    appendMessage(
-      `🚨 Chatbot is unavailable: ${error.message || "Unknown error"}`
-    );
+    appendMessage(`🚨 Chatbot Error: ${error.message || "Could not reach AI"}`);
   }
 }
 
-// ✅ 3. Chatbot Commands (Custom Actions for Recipes)
+// ✅ 3. Chatbot Commands (Add Recipes from Chat)
 function ruleChatBot(request) {
   const lowerCaseRequest = request.toLowerCase();
 
@@ -1517,6 +1527,8 @@ function appendMessage(message) {
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
+// -----------------------🍽️ RECIPE FIRESTORE CRUD -----------------------
+
 // ✅ 6. Add a New Recipe to Firestore
 async function addRecipeToFirestore(name, category, ingredients) {
   try {
@@ -1537,16 +1549,14 @@ async function addRecipeToFirestore(name, category, ingredients) {
 // ✅ 7. Show All Recipes with Proper Filtering
 async function renderRecipes(category = "", ingredient = "") {
   const recipes = await getRecipesFromFirestore();
-  console.log("📄 All Recipes from Firestore:", recipes);
-
   recipeList.innerHTML = ""; // Clear list before rendering
 
-  // ✅ Fixed Category & Ingredient Filtering
+  // ✅ Filter Recipes Properly (Case-insensitive)
   const filteredRecipes = recipes.filter((recipeDoc) => {
     const data = recipeDoc.data();
     const recipeCategory = data.category?.toLowerCase() || "";
     const categoryMatch =
-      !category || recipeCategory === category.toLowerCase();
+      !category || recipeCategory.includes(category.toLowerCase());
 
     const ingredientMatch =
       !ingredient ||
@@ -1557,15 +1567,13 @@ async function renderRecipes(category = "", ingredient = "") {
     return categoryMatch && ingredientMatch;
   });
 
+  // ✅ Show Message if No Results Found
   if (filteredRecipes.length === 0) {
-    recipeList.innerHTML = "<p>🚫 No matching recipes found.</p>";
-    console.log("🚫 No matching recipes for category or ingredient");
+    recipeList.innerHTML = "<p>🚫 No recipes match your search.</p>";
     return;
   }
 
-  console.log("✅ Filtered Recipes:", filteredRecipes);
-
-  // ✅ Display Filtered Recipes
+  // ✅ Display Filtered Recipes on Website
   filteredRecipes.forEach((recipeDoc) => {
     const data = recipeDoc.data();
     const recipeItem = document.createElement("li");
@@ -1582,7 +1590,7 @@ async function renderRecipes(category = "", ingredient = "") {
     recipeList.appendChild(recipeItem);
   });
 
-  // ✅ Attach Event Listeners for Favorites, Edits, and Deletes
+  // ✅ Reattach Event Listeners to Buttons
   document
     .querySelectorAll(".fav-btn")
     .forEach((btn) => btn.addEventListener("click", toggleFavorite));
@@ -1601,9 +1609,12 @@ async function renderRecipes(category = "", ingredient = "") {
 function handleFilter() {
   const selectedCategory = categoryFilter.value.trim().toLowerCase();
   const ingredientQuery = ingredientFilter.value.trim().toLowerCase();
+
   console.log(
-    `🔍 Filtering by: Category="${selectedCategory}", Ingredient="${ingredientQuery}"`
+    `🔍 Filtering Recipes with Category="${selectedCategory}", Ingredient="${ingredientQuery}"`
   );
+
+  // ✅ Render Results on Website
   renderRecipes(selectedCategory, ingredientQuery);
 }
 
@@ -1663,6 +1674,8 @@ async function editRecipe(e) {
     alert("🚨 Please fill in all fields.");
   }
 }
+
+// -----------------------🟢 INITIALIZATION -----------------------
 
 // ✅ 13. Initialize App Properly
 window.addEventListener("DOMContentLoaded", async () => {
