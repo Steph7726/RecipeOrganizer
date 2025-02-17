@@ -2193,7 +2193,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderRecipes();
 });*/
 
-import {
+/*import {
   db,
   auth,
   signInAnonymously,
@@ -2440,4 +2440,18 @@ document.getElementById("addRecipeBtn").addEventListener("click", async () => {
 window.addEventListener("DOMContentLoaded", async () => {
   await getApiKey();
   renderRecipes();
-});
+});*/
+
+// assets/js/app.js
+import "./firebase.js";
+import "./signIn.js";
+import "./tasks.js";
+
+// ✅ Initialize the app with routing logic
+const email = JSON.parse(localStorage.getItem("email"));
+
+if (email) {
+  window.location.href = "tasks.html";
+} else {
+  window.location.href = "index.html";
+}
