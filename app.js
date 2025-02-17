@@ -710,7 +710,7 @@ window.addEventListener("load", async () => {
   renderRecipes(); // Load Recipes
 });*/
 
-import { initializeApp } from "firebase/app";
+/*import { initializeApp } from "firebase/app";
 import {
   doc,
   getDocs,
@@ -895,6 +895,335 @@ async function renderRecipes(category = "", ingredient = "") {
       return; // Skip if filters don't match
     }
 
+    const recipeItem = document.createElement("li");
+    recipeItem.innerHTML = `
+      <strong>${data.name}</strong> - ${data.category} <br>
+      Ingredients: ${data.ingredients.join(", ")} <br>
+      <button class="fav-btn" data-id="${recipeDoc.id}" style="color: ${
+      data.favorite ? "gold" : "black"
+    }">⭐</button>
+      <button class="edit-btn" data-id="${recipeDoc.id}">✏️ Edit</button>
+      <button class="delete-btn" data-id="${recipeDoc.id}">❌ Delete</button>
+    `;
+
+    recipeList.appendChild(recipeItem);
+  });
+
+  // ✅ Attach Event Listeners
+  document
+    .querySelectorAll(".fav-btn")
+    .forEach((btn) => btn.addEventListener("click", toggleFavorite));
+  document
+    .querySelectorAll(".edit-btn")
+    .forEach((btn) => btn.addEventListener("click", editRecipe));
+  document.querySelectorAll(".delete-btn").forEach((btn) =>
+    btn.addEventListener("click", async (e) => {
+      await deleteRecipeFromFirestore(e.target.dataset.id);
+      renderRecipes(category, ingredient);
+    })
+  );
+}
+
+// ✅ Step 8: Filter Recipes by Category or Ingredient
+function handleFilter() {
+  const selectedCategory = categoryFilter.value;
+  const ingredientQuery = ingredientFilter.value.trim().toLowerCase();
+  renderRecipes(selectedCategory, ingredientQuery);
+}
+
+// ✅ Step 9: Fetch Recipes from Firestore
+async function getRecipesFromFirestore() {
+  const data = await getDocs(collection(db, "recipes"));
+  return data.docs;
+}
+
+// ✅ Step 10: Delete Recipe from Firestore
+async function deleteRecipeFromFirestore(id) {
+  try {
+    await deleteDoc(doc(db, "recipes", id));
+    console.log(`✅ Recipe deleted.`);
+    renderRecipes();
+  } catch (error) {
+    console.error("🚨 Error deleting recipe:", error);
+  }
+}
+
+// ✅ Step 11: Toggle Recipe Favorite Status
+async function toggleFavorite(e) {
+  const recipeId = e.target.dataset.id;
+  const recipeRef = doc(db, "recipes", recipeId);
+  const recipeSnapshot = await getDoc(recipeRef);
+  const currentFavorite = recipeSnapshot.data().favorite || false;
+
+  try {
+    await updateDoc(recipeRef, { favorite: !currentFavorite });
+    console.log("✅ Favorite status updated.");
+    renderRecipes();
+  } catch (error) {
+    console.error("🚨 Error updating favorite status:", error);
+  }
+}
+
+// ✅ Step 12: Edit Existing Recipe
+async function editRecipe(e) {
+  const recipeId = e.target.dataset.id;
+  const newName = prompt("Enter new recipe name:");
+  const newCategory = prompt("Enter new category:");
+  const newIngredients = prompt("Enter new ingredients (comma-separated):");
+
+  if (newName && newCategory && newIngredients) {
+    try {
+      await updateDoc(doc(db, "recipes", recipeId), {
+        name: newName,
+        category: newCategory,
+        ingredients: newIngredients.split(",").map((i) => i.trim()),
+      });
+      console.log("✅ Recipe updated.");
+      renderRecipes();
+    } catch (error) {
+      console.error("🚨 Error updating recipe:", error);
+    }
+  } else {
+    alert("🚨 Please fill in all fields.");
+  }
+}
+
+// ✅ Step 13: Initialize App Properly (Ensure DOM Loaded)
+window.addEventListener("DOMContentLoaded", async () => {
+  // Get DOM Elements after loading
+  recipeInput = document.getElementById("recipeInput");
+  categoryInput = document.getElementById("categoryInput");
+  ingredientsInput = document.getElementById("ingredientsInput");
+  addRecipeBtn = document.getElementById("addRecipeBtn");
+  recipeList = document.getElementById("recipeList");
+  categoryFilter = document.getElementById("categoryFilter");
+  ingredientFilter = document.getElementById("ingredientFilter");
+  filterBtn = document.getElementById("filterBtn");
+  chatInput = document.getElementById("chat-input");
+  chatSend = document.getElementById("send-btn");
+  chatHistory = document.getElementById("chat-history");
+
+  // Attach Event Listeners
+  addRecipeBtn.addEventListener("click", async () => {
+    const recipeName = recipeInput.value.trim();
+    const category = categoryInput.value.trim();
+    const ingredients = ingredientsInput.value
+      .trim()
+      .split(",")
+      .map((i) => i.trim());
+    if (recipeName && category && ingredients.length > 0) {
+      await addRecipeToFirestore(recipeName, category, ingredients);
+      recipeInput.value = "";
+      categoryInput.value = "";
+      ingredientsInput.value = "";
+    } else {
+      alert("🚨 Please fill out all fields.");
+    }
+  });
+
+  chatSend.addEventListener("click", handleChatInput);
+  filterBtn.addEventListener("click", handleFilter);
+
+  // ✅ Load Recipes and Initialize AI
+  await getApiKey();
+  renderRecipes();
+});*/
+
+import { initializeApp } from "firebase/app";
+import {
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getFirestore,
+  collection,
+} from "firebase/firestore";
+import { GoogleGenerativeAI } from "@google/generative-ai"; // Import Google AI module
+
+// ✅ Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBXHfs546W38_wpb5hKIVatze-StM5NQQE",
+  authDomain: "recipe-organizer-f9bc7.firebaseapp.com",
+  projectId: "recipe-organizer-f9bc7",
+  storageBucket: "recipe-organizer-f9bc7.firebasestorage.app",
+  messagingSenderId: "907283353267",
+  appId: "1:907283353267:web:dd265f90d55b7fe3756ac6",
+  measurementId: "G-5MVPH1ZKFQ",
+};
+
+// ✅ Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ✅ FIX: Use `import.meta.url` for Parcel v2 compatibility (Service Worker)
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register(new URL("service-worker.js", import.meta.url), {
+      scope: "/RecipeOrganizer/",
+    })
+    .then(() => console.log("✅ Service Worker Registered"))
+    .catch((err) => console.error("🚨 Service Worker Error:", err));
+}
+
+// ✅ DOM Elements (Defined in DOMContentLoaded to ensure proper loading)
+let recipeInput, categoryInput, ingredientsInput, addRecipeBtn;
+let recipeList, categoryFilter, ingredientFilter, filterBtn;
+let chatInput, chatSend, chatHistory;
+
+let genAI;
+let model;
+
+// ✅ Step 1: Securely Fetch Google Gemini API Key from Firestore
+async function getApiKey() {
+  try {
+    const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+    if (snapshot.exists()) {
+      const apiKey = snapshot.data().key;
+      genAI = new GoogleGenerativeAI(apiKey);
+      model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log("✅ Google Gemini AI Model Initialized");
+    } else {
+      appendMessage("🚨 No API key found in Firestore");
+    }
+  } catch (error) {
+    console.error("🚨 Error fetching API key:", error);
+    appendMessage("🚨 Chatbot error: API initialization failed.");
+  }
+}
+
+// ✅ Step 2: Google AI Chatbot Function (Fixed Response Parsing)
+async function askChatBot(request) {
+  if (!model) {
+    appendMessage("AI is initializing... Please wait.");
+    return;
+  }
+
+  try {
+    appendMessage(`🧑‍💻 You: ${request}`);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    const result = await model.generateContent(request);
+    console.log("🟡 AI Full Response:", result);
+
+    if (result?.candidates && result.candidates[0]?.content?.parts) {
+      const aiResponse = result.candidates[0].content.parts
+        .map((part) => part.text)
+        .join("\n");
+      appendMessage(`🤖 AI: ${aiResponse}`);
+    } else {
+      appendMessage("🚨 Chatbot: No valid response from AI.");
+    }
+  } catch (error) {
+    console.error("🚨 Chatbot Error:", error);
+    appendMessage(
+      `🚨 Chatbot is unavailable: ${error.message || "Unknown error"}`
+    );
+  }
+}
+
+// ✅ Step 3: Chatbot Commands
+function ruleChatBot(request) {
+  const lowerCaseRequest = request.toLowerCase();
+
+  if (lowerCaseRequest.startsWith("add recipe")) {
+    let recipeDetails = lowerCaseRequest.replace("add recipe", "").trim();
+    let [name, category, ingredients] = recipeDetails.split(";");
+    if (name && category && ingredients) {
+      addRecipeToFirestore(
+        name.trim(),
+        category.trim(),
+        ingredients.trim().split(",")
+      );
+      appendMessage(`✅ Recipe '${name}' added!`);
+    } else {
+      appendMessage(
+        "⚠️ Use format: 'add recipe Name; Category; ingredient1, ingredient2'"
+      );
+    }
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("show recipes")) {
+    renderRecipes();
+    appendMessage("📜 Displaying all recipes...");
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("find recipe")) {
+    let searchTerm = lowerCaseRequest.replace("find recipe", "").trim();
+    renderRecipes("", searchTerm);
+    appendMessage(`🔍 Searching for recipes with '${searchTerm}'...`);
+    return true;
+  }
+
+  return false;
+}
+
+// ✅ Step 4: Chat Input Handling
+function handleChatInput() {
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    if (!ruleChatBot(prompt)) {
+      askChatBot(prompt);
+    }
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
+}
+
+// ✅ Step 5: Append Chat Messages to Chat History
+function appendMessage(message) {
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+// ✅ Step 6: Add a New Recipe to Firestore
+async function addRecipeToFirestore(name, category, ingredients) {
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name,
+      category,
+      ingredients,
+      favorite: false,
+      created_at: new Date(),
+    });
+    console.log(`✅ Recipe '${name}' added.`);
+    renderRecipes();
+  } catch (error) {
+    console.error("🚨 Error adding recipe:", error);
+  }
+}
+
+// ✅ Step 7: Show All Recipes with Proper Filtering (Fixed Category & Ingredient Filters)
+async function renderRecipes(category = "", ingredient = "") {
+  const recipes = await getRecipesFromFirestore();
+  recipeList.innerHTML = ""; // Clear previous list
+
+  const filteredRecipes = recipes.filter((recipeDoc) => {
+    const data = recipeDoc.data();
+    const categoryMatch =
+      !category || data.category.toLowerCase() === category.toLowerCase();
+    const ingredientMatch =
+      !ingredient ||
+      data.ingredients.some((ing) =>
+        ing.toLowerCase().includes(ingredient.toLowerCase())
+      );
+    return categoryMatch && ingredientMatch;
+  });
+
+  if (filteredRecipes.length === 0) {
+    recipeList.innerHTML = "<p>🚫 No matching recipes found.</p>";
+    return;
+  }
+
+  filteredRecipes.forEach((recipeDoc) => {
+    const data = recipeDoc.data();
     const recipeItem = document.createElement("li");
     recipeItem.innerHTML = `
       <strong>${data.name}</strong> - ${data.category} <br>
