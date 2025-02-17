@@ -9,13 +9,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA3v10UFzZ_HGbIIJwItHDiCdnZPBjnbZ8",
-  authDomain: "first-pwa-fd641.firebaseapp.com",
-  projectId: "first-pwa-fd641",
-  storageBucket: "first-pwa-fd641.firebasestorage.app",
-  messagingSenderId: "1026685908541",
-  appId: "1:1026685908541:web:1f145ccf10a80e7f295c54",
-  measurementId: "G-E55YXDLFSV",
+  apiKey: "AIzaSyBXHfs546W38_wpb5hKIVatze-StM5NQQE",
+  authDomain: "recipe-organizer-f9bc7.firebaseapp.com",
+  projectId: "recipe-organizer-f9bc7",
+  storageBucket: "recipe-organizer-f9bc7.firebasestorage.app",
+  messagingSenderId: "907283353267",
+  appId: "1:907283353267:web:dd265f90d55b7fe3756ac6",
+  measurementId: "G-5MVPH1ZKFQ",
 };
 
 const app = initializeApp(firebaseConfig);
