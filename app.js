@@ -721,7 +721,6 @@ import {
   getFirestore,
   collection,
 } from "firebase/firestore";
-
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Import Google AI module
 
 // ✅ Firebase Configuration
@@ -735,10 +734,11 @@ const firebaseConfig = {
   measurementId: "G-5MVPH1ZKFQ",
 };
 
+// ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ✅ FIX: Use `import.meta.url` for Parcel v2 compatibility
+// ✅ FIX: Use `import.meta.url` for Parcel v2 compatibility (Service Worker)
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register(new URL("service-worker.js", import.meta.url), {
@@ -748,19 +748,10 @@ if ("serviceWorker" in navigator) {
     .catch((err) => console.error("🚨 Service Worker Error:", err));
 }
 
-// ✅ DOM Elements
-const recipeInput = document.getElementById("recipeInput");
-const categoryInput = document.getElementById("categoryInput");
-const ingredientsInput = document.getElementById("ingredientsInput");
-const addRecipeBtn = document.getElementById("addRecipeBtn");
-const recipeList = document.getElementById("recipeList");
-const categoryFilter = document.getElementById("categoryFilter");
-const ingredientFilter = document.getElementById("ingredientFilter");
-const filterBtn = document.getElementById("filterBtn");
-const chatInput = document.getElementById("chatInput");
-const chatSend = document.getElementById("chatSend");
-const chatHistory = document.getElementById("chat-history");
-const chatOutput = document.getElementById("chatOutput");
+// ✅ DOM Elements (Defined in DOMContentLoaded to ensure proper loading)
+let recipeInput, categoryInput, ingredientsInput, addRecipeBtn;
+let recipeList, categoryFilter, ingredientFilter, filterBtn;
+let chatInput, chatSend, chatHistory;
 
 let genAI;
 let model;
@@ -783,7 +774,7 @@ async function getApiKey() {
   }
 }
 
-// ✅ Step 2: Google AI Chatbot Function
+// ✅ Step 2: Google AI Chatbot Function (Fixed Response Parsing)
 async function askChatBot(request) {
   if (!model) {
     appendMessage("AI is initializing... Please wait.");
@@ -796,7 +787,8 @@ async function askChatBot(request) {
 
     const result = await model.generateContent(request);
     const aiResponse =
-      result.candidates[0]?.content?.parts[0]?.text ?? "No response from AI.";
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ??
+      "No response from AI.";
     appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
     console.error("🚨 Chatbot Error:", error);
@@ -843,7 +835,7 @@ function ruleChatBot(request) {
 }
 
 // ✅ Step 4: Chat Input Handling
-chatSend.addEventListener("click", async () => {
+function handleChatInput() {
   const prompt = chatInput.value.trim();
   if (prompt) {
     if (!ruleChatBot(prompt)) {
@@ -853,11 +845,11 @@ chatSend.addEventListener("click", async () => {
     appendMessage("⚠️ Please enter a prompt.");
   }
   chatInput.value = "";
-});
+}
 
 // ✅ Step 5: Append Chat Messages to Chat History
 function appendMessage(message) {
-  let historyItem = document.createElement("div");
+  const historyItem = document.createElement("div");
   historyItem.textContent = message;
   historyItem.className = "history";
   chatHistory.appendChild(historyItem);
@@ -865,25 +857,6 @@ function appendMessage(message) {
 }
 
 // ✅ Step 6: Add a New Recipe to Firestore
-addRecipeBtn.addEventListener("click", async () => {
-  const recipeName = recipeInput.value.trim();
-  const category = categoryInput.value.trim();
-  const ingredients = ingredientsInput.value
-    .trim()
-    .split(",")
-    .map((i) => i.trim());
-
-  if (recipeName && category && ingredients.length > 0) {
-    await addRecipeToFirestore(recipeName, category, ingredients);
-    renderRecipes();
-    recipeInput.value = "";
-    categoryInput.value = "";
-    ingredientsInput.value = "";
-  } else {
-    alert("🚨 Please fill out all fields before adding.");
-  }
-});
-
 async function addRecipeToFirestore(name, category, ingredients) {
   try {
     await addDoc(collection(db, "recipes"), {
@@ -894,12 +867,13 @@ async function addRecipeToFirestore(name, category, ingredients) {
       created_at: new Date(),
     });
     console.log(`✅ Recipe '${name}' added.`);
+    renderRecipes();
   } catch (error) {
     console.error("🚨 Error adding recipe:", error);
   }
 }
 
-// ✅ Step 7: Show All Recipes with Filtering
+// ✅ Step 7: Show All Recipes with Filtering (Fixed ID issue)
 async function renderRecipes(category = "", ingredient = "") {
   const recipes = await getRecipesFromFirestore();
   recipeList.innerHTML = ""; // Clear previous list
@@ -951,20 +925,16 @@ async function renderRecipes(category = "", ingredient = "") {
 }
 
 // ✅ Step 8: Filter Recipes by Category or Ingredient
-filterBtn.addEventListener("click", () => {
+function handleFilter() {
   const selectedCategory = categoryFilter.value;
   const ingredientQuery = ingredientFilter.value.trim().toLowerCase();
   renderRecipes(selectedCategory, ingredientQuery);
-});
+}
 
 // ✅ Step 9: Fetch Recipes from Firestore
 async function getRecipesFromFirestore() {
   const data = await getDocs(collection(db, "recipes"));
-  const recipeData = [];
-  data.forEach((doc) => {
-    recipeData.push(doc);
-  });
-  return recipeData;
+  return data.docs;
 }
 
 // ✅ Step 10: Delete Recipe from Firestore
@@ -972,6 +942,7 @@ async function deleteRecipeFromFirestore(id) {
   try {
     await deleteDoc(doc(db, "recipes", id));
     console.log(`✅ Recipe deleted.`);
+    renderRecipes();
   } catch (error) {
     console.error("🚨 Error deleting recipe:", error);
   }
@@ -1017,8 +988,43 @@ async function editRecipe(e) {
   }
 }
 
-// ✅ Step 13: Load Recipes and Initialize API Key on Startup
-window.addEventListener("load", async () => {
-  await getApiKey(); // Initialize Google AI
-  renderRecipes(); // Load Recipes
+// ✅ Step 13: Initialize App Properly (Ensure DOM Loaded)
+window.addEventListener("DOMContentLoaded", async () => {
+  // Get DOM Elements after loading
+  recipeInput = document.getElementById("recipeInput");
+  categoryInput = document.getElementById("categoryInput");
+  ingredientsInput = document.getElementById("ingredientsInput");
+  addRecipeBtn = document.getElementById("addRecipeBtn");
+  recipeList = document.getElementById("recipeList");
+  categoryFilter = document.getElementById("categoryFilter");
+  ingredientFilter = document.getElementById("ingredientFilter");
+  filterBtn = document.getElementById("filterBtn");
+  chatInput = document.getElementById("chat-input");
+  chatSend = document.getElementById("send-btn");
+  chatHistory = document.getElementById("chat-history");
+
+  // Attach Event Listeners
+  addRecipeBtn.addEventListener("click", async () => {
+    const recipeName = recipeInput.value.trim();
+    const category = categoryInput.value.trim();
+    const ingredients = ingredientsInput.value
+      .trim()
+      .split(",")
+      .map((i) => i.trim());
+    if (recipeName && category && ingredients.length > 0) {
+      await addRecipeToFirestore(recipeName, category, ingredients);
+      recipeInput.value = "";
+      categoryInput.value = "";
+      ingredientsInput.value = "";
+    } else {
+      alert("🚨 Please fill out all fields.");
+    }
+  });
+
+  chatSend.addEventListener("click", handleChatInput);
+  filterBtn.addEventListener("click", handleFilter);
+
+  // ✅ Load Recipes and Initialize AI
+  await getApiKey();
+  renderRecipes();
 });
