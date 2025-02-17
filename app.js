@@ -2443,9 +2443,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 });*/
 
 // assets/js/app.js
-import "./firebase.js";
-import "./signIn.js";
-import "./tasks.js";
+import "./js/firebase.js";
+import "./js/signIn.js";
+import "./js/tasks.js";
 
 // ✅ Initialize the app with routing logic
 const email = JSON.parse(localStorage.getItem("email"));

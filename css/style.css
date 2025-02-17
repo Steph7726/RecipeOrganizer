@@ -114,107 +114,222 @@ Chatbot UI Styles
   background-color: #f1f1f1;
 }*/
 
+/* ==============================
+    🟡 Global Styles
+============================== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   text-align: center;
   background-color: #f4f4f4;
+  line-height: 1.6;
+  color: #333;
 }
 
 h1 {
   background-color: #0078d7;
   color: white;
-  padding: 10px;
+  padding: 15px;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-.container {
+/* Page Layout */
+header {
+  padding: 10px 0;
+  background-color: #0078d7;
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+main {
+  padding: 20px;
+  max-width: 600px;
   margin: 20px auto;
-  max-width: 500px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* ==============================
+    🟠 Form and Inputs
+============================== */
 input[type="text"] {
-  width: 80%;
-  padding: 10px;
-  margin: 5px 0;
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
+/* Input Focus for Accessibility */
+input:focus {
+  outline: 3px solid #ffa500;
+  box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
+  transition: outline 0.2s;
+}
+
+/* ==============================
+    🟢 Buttons
+============================== */
 button {
   padding: 10px 15px;
+  font-size: 14px;
   background-color: #0078d7;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 button:hover {
   background-color: #005bb5;
+  transform: translateY(-2px);
 }
 
+button:focus {
+  outline: 3px solid #ffa500;
+  box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
+}
+
+/* Sign-in Button */
+#signIn {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #34a853;
+  color: white;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#signIn:hover {
+  background-color: #2c8b44;
+}
+
+/* Sign-out Button */
+#signOutBttn {
+  padding: 10px 20px;
+  background-color: #d9534f;
+  color: white;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#signOutBttn:hover {
+  background-color: #c9302c;
+}
+
+/* ==============================
+    🔴 Recipe List
+============================== */
 ul {
   list-style: none;
   padding: 0;
+  margin: 20px 0;
 }
 
 li {
-  background: white;
+  background-color: #ffffff;
   margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
   text-align: left;
+  transition: background-color 0.2s;
+}
+
+li:hover {
+  background-color: #f0f8ff;
 }
 
 .delete-btn {
+  padding: 5px 10px;
   background-color: red;
   color: white;
-  padding: 5px;
-  border: none;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
   float: right;
 }
 
-/* Chatbot Styles */
+.delete-btn:hover {
+  background-color: darkred;
+}
+
+/* ==============================
+    🟡 Chatbot Styles
+============================== */
 #chatbot-container {
   width: 320px;
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 12px;
   position: fixed;
   bottom: 20px;
   right: 20px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
 #chat-history {
-  height: 220px;
+  height: 200px;
   overflow-y: auto;
   border-bottom: 1px solid #ccc;
   margin-bottom: 10px;
-  padding: 5px;
+  padding: 8px;
   font-size: 14px;
+  background-color: #f9f9f9;
+  color: #333;
+  border-radius: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f9f9f9;
+}
+
+/* Chat Message Styles */
+.history {
+  font-size: 13px;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 5px;
+  background-color: #e7e7e7;
+  color: #333;
+}
+
+.history.user {
+  background-color: #e0f7fa;
+  font-weight: bold;
+  text-align: left;
+}
+
+.history.ai {
+  background-color: #e8f5e9;
+  font-weight: bold;
+  text-align: left;
 }
 
 #chat-input {
-  width: calc(100% - 70px);
+  width: calc(100% - 80px);
   padding: 8px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-  border-radius: 4px;
   font-size: 14px;
 }
 
 #send-btn {
-  padding: 8px 12px;
+  padding: 8px 15px;
   font-size: 14px;
-  cursor: pointer;
   background-color: #0078d7;
   color: white;
-  border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: background-color 0.3s;
 }
 
@@ -222,24 +337,49 @@ li {
   background-color: #005bb5;
 }
 
-.history {
-  margin-bottom: 12px;
-  font-size: 13px;
-  padding: 5px;
-  border-radius: 4px;
-  background-color: #f1f1f1;
-}
-
-/* Media Queries for Responsive Design */
+/* ==============================
+    🟣 Media Queries for Responsive Design
+============================== */
 @media (max-width: 768px) {
-  .container,
-  .filters {
-    width: 90%;
+  main {
+    width: 100%;
+    padding: 15px;
   }
 
   #chatbot-container {
-    width: 280px;
+    width: 90%;
     bottom: 10px;
     right: 10px;
+  }
+
+  input[type="text"] {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 22px;
+  }
+
+  #chatbot-container {
+    width: 95%;
+    bottom: 5px;
+    right: 5px;
+  }
+
+  button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  input[type="text"] {
+    font-size: 12px;
+    padding: 8px;
   }
 }

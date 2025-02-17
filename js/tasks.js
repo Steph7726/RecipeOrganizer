@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db } from "./firebase";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 // ✅ Check if user is authenticated
