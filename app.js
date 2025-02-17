@@ -1207,8 +1207,9 @@ async function renderRecipes(category = "", ingredient = "") {
 
   const filteredRecipes = recipes.filter((recipeDoc) => {
     const data = recipeDoc.data();
+    const recipeCategory = data.category ? data.category.toLowerCase() : "";
     const categoryMatch =
-      !category || data.category.toLowerCase() === category.toLowerCase();
+      !category || recipeCategory === category.toLowerCase();
     const ingredientMatch =
       !ingredient ||
       data.ingredients.some((ing) =>
