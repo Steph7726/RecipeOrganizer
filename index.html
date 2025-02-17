@@ -21,6 +21,26 @@
       <button id="addRecipeBtn">Add Recipe</button>
       <ul id="recipeList"></ul>
     </div>
+    <div class="filters">
+      <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="Breakfast">Breakfast</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+      </select>
+      <input
+        type="text"
+        id="ingredientFilter"
+        placeholder="Filter by Ingredient"
+      />
+      <button id="filterBtn">Filter</button>
+    </div>
+    <!-- Chatbot UI -->
+    <div id="chatbot-container">
+      <div id="chat-history"></div>
+      <input type="text" id="chat-input" placeholder="Ask me anything..." />
+      <button id="send-btn">Send</button>
+    </div>
     <script type="module" src="app.js"></script>
   </body>
 </html>

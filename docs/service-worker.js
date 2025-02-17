@@ -1,0 +1,2 @@
+const e=["/RecipeOrganizer","/RecipeOrganizer/index.html","/RecipeOrganizer/style.css","/RecipeOrganizer/app.js","/RecipeOrganizer/manifest.json"];self.addEventListener("install",i=>{i.waitUntil(caches.open("recipe-organizer-cache-v1").then(i=>i.addAll(e)))}),self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(i=>i||fetch(e.request)))});
+//# sourceMappingURL=service-worker.js.map
