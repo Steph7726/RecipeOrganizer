@@ -1,9 +1,10 @@
+// js/signin.js
 import { auth } from "./firebase";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 const provider = new GoogleAuthProvider();
 
-// ✅ Ensure DOM is fully loaded before accessing elements
+// ✅ Run after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const signInBttn = document.getElementById("signIn");
 
@@ -26,6 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  // ✅ Event Listener
+  // ✅ Attach Event Listener
   signInBttn.addEventListener("click", signIn);
 });
