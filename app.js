@@ -2445,7 +2445,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 // assets/js/app.js
 // app.js
 import "./js/firebase.js";
-import "./js/signIn.js";
+import "./js/signin.js";
 import "./js/tasks.js";
 import "./js/service-worker.js";
 
