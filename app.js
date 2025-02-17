@@ -1937,7 +1937,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderRecipes();
 });*/
 
-import { initializeApp } from "firebase/app";
+/*import { initializeApp } from "firebase/app";
 import {
   doc,
   getDocs,
@@ -2189,6 +2189,205 @@ window.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
+  await getApiKey();
+  renderRecipes();
+});*/
+
+import {
+  db,
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  doc,
+} from "./firebase-config.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// Global Variables
+let genAI;
+let model;
+
+// ✅ 1. Fetch Google Gemini API Key from Firestore
+async function getApiKey() {
+  try {
+    const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+    if (snapshot.exists()) {
+      const apiKey = snapshot.data().key;
+      console.log("✅ Google Gemini API Key Loaded");
+      genAI = new GoogleGenerativeAI(apiKey);
+      model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    } else {
+      appendMessage("🚨 No Google Gemini API key found in Firestore");
+    }
+  } catch (error) {
+    console.error("🚨 Error fetching Google Gemini API key:", error.message);
+    appendMessage("🚨 Chatbot error: Invalid API Key.");
+  }
+}
+
+// ✅ 2. Ask Gemini AI and Display Response
+async function askChatBot(request) {
+  if (!model) {
+    appendMessage("🚨 AI is not ready yet. Please wait.");
+    return;
+  }
+
+  try {
+    appendMessage(`🧑‍💻 You: ${request}`);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: request }] }],
+    });
+    const aiResponse =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "🚫 No meaningful response from AI.";
+    appendMessage(`🤖 AI: ${aiResponse}`);
+  } catch (error) {
+    console.error("🚨 Chatbot Error:", error);
+    appendMessage(`🚨 Chatbot Error: ${error.message}`);
+  }
+}
+
+// ✅ 3. Chatbot Commands
+function ruleChatBot(request) {
+  const lowerCaseRequest = request.toLowerCase();
+
+  if (lowerCaseRequest.startsWith("add recipe")) {
+    const details = lowerCaseRequest
+      .replace("add recipe", "")
+      .trim()
+      .split(";");
+    const [name, category, ingredients] = details;
+    if (name && category && ingredients) {
+      addRecipeToFirestore(
+        name.trim(),
+        category.trim(),
+        ingredients.split(",")
+      );
+      appendMessage(`✅ Recipe '${name}' added successfully!`);
+    } else {
+      appendMessage(
+        "⚠️ Format: 'add recipe Name; Category; ingredient1, ingredient2'"
+      );
+    }
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("show recipes")) {
+    renderRecipes();
+    appendMessage("📜 Showing all recipes...");
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("find recipe")) {
+    const searchTerm = lowerCaseRequest.replace("find recipe", "").trim();
+    renderRecipes("", searchTerm);
+    appendMessage(`🔍 Searching for recipes with '${searchTerm}'...`);
+    return true;
+  }
+
+  return false;
+}
+
+// ✅ 4. Chat UI Functions
+function appendMessage(message) {
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function handleChatInput() {
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    if (!ruleChatBot(prompt)) {
+      askChatBot(prompt);
+    }
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
+}
+
+// ✅ 5. Recipe CRUD Functions
+async function addRecipeToFirestore(name, category, ingredients) {
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name,
+      category,
+      ingredients,
+      created_at: new Date(),
+    });
+    console.log(`✅ Recipe '${name}' added.`);
+    renderRecipes();
+  } catch (error) {
+    console.error("🚨 Error adding recipe:", error.message);
+    appendMessage(`🚨 Could not add recipe: ${error.message}`);
+  }
+}
+
+async function getRecipesFromFirestore() {
+  const snapshot = await getDocs(collection(db, "recipes"));
+  return snapshot.docs;
+}
+
+async function renderRecipes(category = "", ingredient = "") {
+  const recipes = await getRecipesFromFirestore();
+  recipeList.innerHTML = "";
+
+  const filtered = recipes.filter((doc) => {
+    const data = doc.data();
+    const recipeCategory = data.category.toLowerCase();
+    const ingredients = data.ingredients.map((i) => i.toLowerCase());
+    return (
+      (!category || recipeCategory.includes(category)) &&
+      (!ingredient || ingredients.some((i) => i.includes(ingredient)))
+    );
+  });
+
+  if (filtered.length === 0) {
+    recipeList.innerHTML = "<p>🚫 No recipes found.</p>";
+    return;
+  }
+
+  filtered.forEach((doc) => {
+    const data = doc.data();
+    const item = document.createElement("li");
+    item.innerHTML = `
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}
+      <button class="delete-btn" onclick="deleteRecipe('${
+        doc.id
+      }')">❌ Delete</button>
+    `;
+    recipeList.appendChild(item);
+  });
+}
+
+// ✅ 6. Event Listeners
+sendBtn.addEventListener("click", handleChatInput);
+filterBtn.addEventListener("click", () => {
+  renderRecipes(
+    categoryFilter.value.toLowerCase(),
+    ingredientFilter.value.toLowerCase()
+  );
+});
+addRecipeBtn.addEventListener("click", async () => {
+  const name = recipeInput.value.trim();
+  const category = categoryInput.value.trim();
+  const ingredients = ingredientsInput.value.trim().split(",");
+  if (name && category && ingredients.length > 0) {
+    await addRecipeToFirestore(name, category, ingredients);
+    recipeInput.value = "";
+    categoryInput.value = "";
+    ingredientsInput.value = "";
+  } else {
+    alert("🚨 Please fill all fields.");
+  }
+});
+
+// ✅ 7. Initialize on Page Load
+window.addEventListener("DOMContentLoaded", async () => {
   await getApiKey();
   renderRecipes();
 });
