@@ -2195,6 +2195,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 import {
   db,
+  auth,
+  signInAnonymously,
+  onAuthStateChanged,
   collection,
   getDocs,
   getDoc,
@@ -2206,14 +2209,56 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Global Variables
 let genAI;
 let model;
+let isAuthenticated = false;
 
-// ✅ 1. Fetch Google Gemini API Key from Firestore
+// 🟡 1. Biometric Authentication
+async function authenticateUser() {
+  try {
+    const credential = await signInAnonymously(auth);
+    appendMessage("✅ Authentication successful!");
+    document.getElementById(
+      "auth-status"
+    ).innerText = `Authenticated as: ${credential.user.uid}`;
+    enableAppFeatures(); // Enable features after authentication
+  } catch (error) {
+    console.error("🚨 Authentication Error:", error.message);
+    appendMessage(`🚨 Authentication failed: ${error.message}`);
+  }
+}
+
+// ✅ Enable App Features After Auth
+function enableAppFeatures() {
+  isAuthenticated = true;
+  document.getElementById("chat-input").disabled = false;
+  document.getElementById("send-btn").disabled = false;
+  document.getElementById("addRecipeBtn").disabled = false;
+  document.getElementById("filterBtn").disabled = false;
+  appendMessage("✅ You can now use all features.");
+}
+
+// ✅ Event Listener for Auth Button
+document.getElementById("auth-btn").addEventListener("click", authenticateUser);
+
+// ✅ Check Auth State on Load
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById(
+      "auth-status"
+    ).innerText = `Authenticated as: ${user.uid}`;
+    enableAppFeatures();
+  } else {
+    document.getElementById("auth-status").innerText =
+      "Please authenticate to continue.";
+  }
+});
+
+// 🟢 2. Fetch Google Gemini AI Key from Firestore
 async function getApiKey() {
   try {
     const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
     if (snapshot.exists()) {
       const apiKey = snapshot.data().key;
-      console.log("✅ Google Gemini API Key Loaded");
+      console.log("✅ Google Gemini AI Key Loaded");
       genAI = new GoogleGenerativeAI(apiKey);
       model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     } else {
@@ -2225,7 +2270,7 @@ async function getApiKey() {
   }
 }
 
-// ✅ 2. Ask Gemini AI and Display Response
+// 🟡 3. Ask Gemini AI and Display Response
 async function askChatBot(request) {
   if (!model) {
     appendMessage("🚨 AI is not ready yet. Please wait.");
@@ -2247,7 +2292,7 @@ async function askChatBot(request) {
   }
 }
 
-// ✅ 3. Chatbot Commands
+// 🟠 4. Chatbot Commands
 function ruleChatBot(request) {
   const lowerCaseRequest = request.toLowerCase();
 
@@ -2288,7 +2333,7 @@ function ruleChatBot(request) {
   return false;
 }
 
-// ✅ 4. Chat UI Functions
+// 🟢 5. Chat UI Functions
 function appendMessage(message) {
   const historyItem = document.createElement("div");
   historyItem.textContent = message;
@@ -2298,6 +2343,11 @@ function appendMessage(message) {
 }
 
 function handleChatInput() {
+  if (!isAuthenticated) {
+    appendMessage("🚨 Please authenticate first.");
+    return;
+  }
+
   const prompt = chatInput.value.trim();
   if (prompt) {
     if (!ruleChatBot(prompt)) {
@@ -2309,7 +2359,7 @@ function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ 5. Recipe CRUD Functions
+// 🟡 6. Recipe CRUD Functions
 async function addRecipeToFirestore(name, category, ingredients) {
   try {
     await addDoc(collection(db, "recipes"), {
@@ -2364,15 +2414,15 @@ async function renderRecipes(category = "", ingredient = "") {
   });
 }
 
-// ✅ 6. Event Listeners
-sendBtn.addEventListener("click", handleChatInput);
-filterBtn.addEventListener("click", () => {
+// 🟢 7. Event Listeners
+document.getElementById("send-btn").addEventListener("click", handleChatInput);
+document.getElementById("filterBtn").addEventListener("click", () => {
   renderRecipes(
     categoryFilter.value.toLowerCase(),
     ingredientFilter.value.toLowerCase()
   );
 });
-addRecipeBtn.addEventListener("click", async () => {
+document.getElementById("addRecipeBtn").addEventListener("click", async () => {
   const name = recipeInput.value.trim();
   const category = categoryInput.value.trim();
   const ingredients = ingredientsInput.value.trim().split(",");
@@ -2386,7 +2436,7 @@ addRecipeBtn.addEventListener("click", async () => {
   }
 });
 
-// ✅ 7. Initialize on Page Load
+// 🟡 8. Initialize on Page Load
 window.addEventListener("DOMContentLoaded", async () => {
   await getApiKey();
   renderRecipes();
