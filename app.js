@@ -24,7 +24,7 @@ const db = getFirestore(app);
 const sw = new URL("service-worker.js", import.meta.url);
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register(sw.href, { scope: "/First-PWA/" })
+    .register(sw.href, { scope: "/RecipeOrganizer/" })
     .then(() => console.log("Service Worker Registered"))
     .catch((err) => console.error("Service Worker Error:", err));
 }
@@ -65,7 +65,7 @@ async function addTaskToFirestore(taskText) {
       text: taskText,
       completed: false,
     });
-    console.log("Task successfully added");
+    console.log("Recipe successfully added");
   } catch (error) {
     console.error("Error adding task: ", error);
   }
@@ -74,7 +74,7 @@ async function addTaskToFirestore(taskText) {
 // Fetch and Render Tasks
 async function renderTasks() {
   const tasks = await getTasksFromFirestore();
-  console.log("Tasks fetched from Firestore: ", tasks);
+  console.log("Recipe fetched from Firestore: ", tasks);
   const taskList = document.getElementById("taskList");
   taskList.innerHTML = ""; // Clear the list before rendering
 
