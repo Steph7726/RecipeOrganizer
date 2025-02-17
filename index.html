@@ -5,24 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0078D7" />
     <title>Recipe Organizer App</title>
-    <!-- CSS Files -->
     <link rel="stylesheet" href="style.css" />
-    <!--<link rel="stylesheet" href="./docs/index.307e3786.css" />-->
-    <!-- Manifest -->
     <link rel="manifest" href="manifest.json" />
-    <!-- Icons 
-    <link rel="icon" href="./docs/icon-128.445b138c.png" sizes="128x128" />
-    <link rel="icon" href="./docs/icon-512.d9e26802.png" sizes="512x512" />-->
   </head>
   <body>
     <h1>Recipe Organizer</h1>
     <div class="container">
-      <input type="text" id="taskInput" placeholder="Enter a new task" />
-      <button id="addTaskBtn">Add Task</button>
-      <ul id="taskList"></ul>
+      <input type="text" id="recipeInput" placeholder="Recipe Name" />
+      <input type="text" id="categoryInput" placeholder="Category" />
+      <input
+        type="text"
+        id="ingredientsInput"
+        placeholder="Ingredients (comma-separated)"
+      />
+      <button id="addRecipeBtn">Add Recipe</button>
+      <ul id="recipeList"></ul>
     </div>
-    <!-- JS Files -->
     <script type="module" src="app.js"></script>
-    <!--<script type="module" src="./docs/index.1ad5e62a.js"></script>-->
   </body>
 </html>
