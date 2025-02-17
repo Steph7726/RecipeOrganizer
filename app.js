@@ -1360,7 +1360,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 });*/
 
 // ✅ Full app.js with Fixes
-import { initializeApp } from "firebase/app";
+/*import { initializeApp } from "firebase/app";
 import {
   doc,
   getDocs,
@@ -1602,7 +1602,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   await getApiKey();
   renderRecipes();
-});
+});*/
 
 // ✅ FIX: Parcel v2 Service Worker
 /*if ("serviceWorker" in navigator) {
@@ -1936,3 +1936,259 @@ window.addEventListener("DOMContentLoaded", async () => {
   await getApiKey();
   renderRecipes();
 });*/
+
+import { initializeApp } from "firebase/app";
+import {
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getFirestore,
+  collection,
+} from "firebase/firestore";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// ✅ Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBXHfs546W38_wpb5hKIVatze-StM5NQQE",
+  authDomain: "recipe-organizer-f9bc7.firebaseapp.com",
+  projectId: "recipe-organizer-f9bc7",
+  storageBucket: "recipe-organizer-f9bc7.firebasestorage.app",
+  messagingSenderId: "907283353267",
+  appId: "1:907283353267:web:dd265f90d55b7fe3756ac6",
+  measurementId: "G-5MVPH1ZKFQ",
+};
+
+// ✅ Initialize Firebase and Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ✅ DOM Elements
+let recipeInput, categoryInput, ingredientsInput, addRecipeBtn;
+let recipeList, categoryFilter, ingredientFilter, filterBtn;
+let chatInput, chatSend, chatHistory;
+
+let genAI;
+let model;
+
+// -------------------🧠 GOOGLE GEMINI AI -------------------
+
+// ✅ Fetch Google Gemini API Key
+async function getApiKey() {
+  try {
+    const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+    if (snapshot.exists()) {
+      const apiKey = snapshot.data().key;
+      if (!apiKey.startsWith("AIza")) {
+        throw new Error("Invalid API key format");
+      }
+      genAI = new GoogleGenerativeAI(apiKey);
+      model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log("✅ Google Gemini AI Key Loaded");
+    } else {
+      appendMessage("🚨 No Google Gemini API key found in Firestore");
+    }
+  } catch (error) {
+    console.error("🚨 Error fetching API key:", error.message);
+    appendMessage("🚨 Chatbot error: Invalid API Key.");
+  }
+}
+
+// ✅ Ask AI Chatbot Properly
+async function askChatBot(request) {
+  if (!model) {
+    appendMessage("AI is initializing... Please wait.");
+    return;
+  }
+
+  try {
+    appendMessage(`🧑‍💻 You: ${request}`);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: request }] }],
+    });
+
+    // ✅ Properly Extract AI Response
+    let aiResponse =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "🚫 No meaningful response from AI.";
+
+    appendMessage(`🤖 AI: ${aiResponse}`);
+  } catch (error) {
+    console.error("🚨 Chatbot Error:", error);
+    appendMessage(`🚨 Chatbot Error: ${error.message || "Could not reach AI"}`);
+  }
+}
+
+// ✅ Chatbot Commands
+function ruleChatBot(request) {
+  const lowerCaseRequest = request.toLowerCase();
+
+  if (lowerCaseRequest.startsWith("add recipe")) {
+    let recipeDetails = lowerCaseRequest.replace("add recipe", "").trim();
+    let [name, category, ingredients] = recipeDetails.split(";");
+    if (name && category && ingredients) {
+      addRecipeToFirestore(
+        name.trim(),
+        category.trim(),
+        ingredients.trim().split(",")
+      );
+      appendMessage(`✅ Recipe '${name}' added!`);
+    } else {
+      appendMessage(
+        "⚠️ Use format: 'add recipe Name; Category; ingredient1, ingredient2'"
+      );
+    }
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("show recipes")) {
+    renderRecipes();
+    appendMessage("📜 Displaying all recipes...");
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("find recipe")) {
+    let searchTerm = lowerCaseRequest.replace("find recipe", "").trim();
+    renderRecipes("", searchTerm);
+    appendMessage(`🔍 Searching for recipes with '${searchTerm}'...`);
+    return true;
+  }
+
+  return false;
+}
+
+// ✅ Handle Chat Input
+function handleChatInput() {
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    if (!ruleChatBot(prompt)) {
+      askChatBot(prompt);
+    }
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
+}
+
+// ✅ Append Chat Messages
+function appendMessage(message) {
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+// -------------------🍽️ FIRESTORE CRUD -------------------
+
+// ✅ Add Recipe Function
+async function addRecipeToFirestore(name, category, ingredients) {
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name: name,
+      category: category,
+      ingredients: ingredients,
+      favorite: false,
+      created_at: new Date(),
+    });
+    console.log(`✅ Recipe '${name}' added.`);
+    renderRecipes();
+  } catch (error) {
+    console.error("🚨 Error adding recipe to Firestore:", error.message);
+    appendMessage(`🚨 Could not add recipe: ${error.message}`);
+  }
+}
+
+// ✅ Render Recipes with Filters
+async function renderRecipes(category = "", ingredient = "") {
+  const recipes = await getRecipesFromFirestore();
+  recipeList.innerHTML = "";
+
+  const filteredRecipes = recipes.filter((recipeDoc) => {
+    const data = recipeDoc.data();
+    const recipeCategory = (data.category || "").toLowerCase();
+    const recipeIngredients = (data.ingredients || []).map((i) =>
+      i.toLowerCase()
+    );
+
+    const categoryMatch = !category || recipeCategory.includes(category);
+    const ingredientMatch =
+      !ingredient || recipeIngredients.some((ing) => ing.includes(ingredient));
+
+    return categoryMatch && ingredientMatch;
+  });
+
+  if (filteredRecipes.length === 0) {
+    recipeList.innerHTML = "<p>🚫 No recipes match your search.</p>";
+    return;
+  }
+
+  filteredRecipes.forEach((recipeDoc) => {
+    const data = recipeDoc.data();
+    const recipeItem = document.createElement("li");
+    recipeItem.innerHTML = `
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}<br>
+      <button class="fav-btn" data-id="${recipeDoc.id}">⭐</button>
+      <button class="delete-btn" data-id="${recipeDoc.id}">❌</button>
+    `;
+    recipeList.appendChild(recipeItem);
+  });
+}
+
+// ✅ Fetch Recipes from Firestore
+async function getRecipesFromFirestore() {
+  const data = await getDocs(collection(db, "recipes"));
+  return data.docs;
+}
+
+// -------------------🟢 INITIALIZATION -------------------
+
+window.addEventListener("DOMContentLoaded", async () => {
+  recipeInput = document.getElementById("recipeInput");
+  categoryInput = document.getElementById("categoryInput");
+  ingredientsInput = document.getElementById("ingredientsInput");
+  addRecipeBtn = document.getElementById("addRecipeBtn");
+  recipeList = document.getElementById("recipeList");
+  categoryFilter = document.getElementById("categoryFilter");
+  ingredientFilter = document.getElementById("ingredientFilter");
+  filterBtn = document.getElementById("filterBtn");
+  chatInput = document.getElementById("chat-input");
+  chatSend = document.getElementById("send-btn");
+  chatHistory = document.getElementById("chat-history");
+
+  // ✅ Attach Event Listeners
+  addRecipeBtn.addEventListener("click", async () => {
+    const recipeName = recipeInput.value.trim();
+    const category = categoryInput.value.trim();
+    const ingredients = ingredientsInput.value
+      .trim()
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
+
+    if (recipeName && category && ingredients.length > 0) {
+      await addRecipeToFirestore(recipeName, category, ingredients);
+      recipeInput.value = "";
+      categoryInput.value = "";
+      ingredientsInput.value = "";
+    } else {
+      alert("🚨 Please fill out all fields correctly.");
+    }
+  });
+
+  chatSend.addEventListener("click", handleChatInput);
+  filterBtn.addEventListener("click", () => {
+    renderRecipes(
+      categoryFilter.value.trim().toLowerCase(),
+      ingredientFilter.value.trim().toLowerCase()
+    );
+  });
+
+  await getApiKey();
+  renderRecipes();
+});
