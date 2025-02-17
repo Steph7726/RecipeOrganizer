@@ -1,7 +1,7 @@
 {
   "name": "RecipeOrganizer",
   "short_name": "RecipeOrganizer",
-  "start_url": "/RecipeOrganizer/html/index.html",
+  "start_url": "/RecipeOrganizer/docs/html/index.html",
   "display": "standalone",
   "background_color": "#f4f4f4",
   "theme_color": "#0078D7"

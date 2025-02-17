@@ -10,7 +10,7 @@ function signIn() {
     .then((result) => {
       const user = result.user;
       localStorage.setItem("email", JSON.stringify(user.email));
-      window.location.href = "/RecipeOrganizer/html/tasks.html";
+      window.location.href = "/RecipeOrganizer/docs/html/tasks.html";
     })
     .catch((error) => {
       console.error("Sign-in Error:", error.message);
