@@ -1,21 +1,11 @@
-// service-worker.js
-const CACHE_NAME = "recipe-organizer-cache-v3";
+// js/service-worker.js
+const CACHE_NAME = "recipe-organizer-cache-v4";
 const FILES_TO_CACHE = [
-  // HTML files
-  "/html/index.html",
-  "/html/tasks.html",
-
-  // CSS files
-  "/css/style.css",
-
-  // JavaScript files
-  "/app.js",
-  "/js/signIn.js",
-  "/js/tasks.js",
-  "/js/firebase.js",
-
-  // Manifest
-  "/manifest.json",
+  "./html/index.html",
+  "./html/tasks.html",
+  "./css/style.css",
+  "./app.js",
+  "./manifest.json",
 ];
 
 // ✅ INSTALL: Cache all necessary files
@@ -52,7 +42,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((response) => {
       return (
         response ||
-        fetch(event.request).catch(() => caches.match("/html/index.html"))
+        fetch(event.request).catch(() => caches.match("./html/index.html"))
       );
     })
   );

@@ -2443,15 +2443,29 @@ window.addEventListener("DOMContentLoaded", async () => {
 });*/
 
 // assets/js/app.js
+// app.js
 import "./js/firebase.js";
 import "./js/signIn.js";
 import "./js/tasks.js";
+import "./js/service-worker.js";
 
-// ✅ Initialize the app with routing logic
+// ✅ Check if user is logged in and redirect
 const email = JSON.parse(localStorage.getItem("email"));
-
-if (email) {
+if (window.location.pathname.includes("index.html") && email) {
   window.location.href = "tasks.html";
-} else {
+}
+if (window.location.pathname.includes("tasks.html") && !email) {
   window.location.href = "index.html";
+}
+
+// app.js
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register(new URL("./js/service-worker.js", import.meta.url))
+      .then((reg) => console.log("✅ Service Worker Registered:", reg))
+      .catch((err) =>
+        console.error("🚨 Service Worker Registration Failed:", err)
+      );
+  });
 }
