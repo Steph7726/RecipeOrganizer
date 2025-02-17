@@ -1,24 +1,24 @@
-const CACHE_NAME = "recipe-organizer-cache-v2";
+// service-worker.js
+const CACHE_NAME = "recipe-organizer-cache-v3";
 const FILES_TO_CACHE = [
   // HTML files
-  "/RecipeOrganizer/",
-  "/RecipeOrganizer/index.html",
-  "/RecipeOrganizer/tasks.html",
+  "/html/index.html",
+  "/html/tasks.html",
 
   // CSS files
-  "/RecipeOrganizer/css/style.css",
+  "/css/style.css",
 
   // JavaScript files
-  "/RecipeOrganizer/app.js",
-  "/RecipeOrganizer/js/signIn.js",
-  "/RecipeOrganizer/js/tasks.js",
-  "/RecipeOrganizer/js/firebase.js",
+  "/app.js",
+  "/js/signIn.js",
+  "/js/tasks.js",
+  "/js/firebase.js",
 
-  // Manifest and Icons
-  "/RecipeOrganizer/manifest.json",
+  // Manifest
+  "/manifest.json",
 ];
 
-// 🟢 INSTALL: Cache all necessary files
+// ✅ INSTALL: Cache all necessary files
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -29,7 +29,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting(); // Activate immediately after install
 });
 
-// 🟠 ACTIVATE: Clear old caches
+// ✅ ACTIVATE: Clear old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keyList) =>
@@ -46,15 +46,13 @@ self.addEventListener("activate", (event) => {
   self.clients.claim(); // Become active immediately
 });
 
-// 🟡 FETCH: Serve from cache or fetch from network
+// ✅ FETCH: Serve from cache or fetch from network
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       return (
         response ||
-        fetch(event.request).catch(() =>
-          caches.match("/RecipeOrganizer/index.html")
-        )
+        fetch(event.request).catch(() => caches.match("/html/index.html"))
       );
     })
   );
