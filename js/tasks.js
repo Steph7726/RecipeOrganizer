@@ -269,11 +269,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // ✅ Global Variables
 let genAI;
 let model;
+let apiKeyLoaded = false;
 
-// ✅ Ensure DOM elements are available before running scripts
-document.addEventListener("DOMContentLoaded", () => {
+// ✅ Ensure DOM elements exist before executing
+document.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
-  getApiKey(); // Fetch API Key for Chatbot
+  await getApiKey(); // Fetch API Key for Chatbot
   getRecipes(); // Load existing recipes
 });
 
@@ -283,9 +284,10 @@ async function getApiKey() {
     const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
     if (snapshot.exists()) {
       const apiKey = snapshot.data().key;
-      console.log("✅ Google Gemini API Key Loaded");
+      console.log("✅ Google Gemini API Key Loaded:", apiKey);
       genAI = new GoogleGenerativeAI(apiKey);
       model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      apiKeyLoaded = true;
     } else {
       appendMessage("🚨 No Google Gemini API key found in Firestore");
     }
@@ -297,7 +299,7 @@ async function getApiKey() {
 
 // ✅ Ask Google Gemini AI
 async function askChatBot(request) {
-  if (!model) {
+  if (!apiKeyLoaded || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
     return;
   }
@@ -491,26 +493,11 @@ async function getRecipes(filter = "") {
 
   snapshot.forEach((doc) => {
     const data = doc.data();
-    if (
-      !filter ||
-      data.name.includes(filter) ||
-      data.category.includes(filter)
-    ) {
-      const item = document.createElement("li");
-      item.innerHTML = `
-        <strong>${data.name}</strong> (${data.category})<br>
-        Ingredients: ${data.ingredients.join(", ")}<br>
-        <button onclick="toggleFavorite('${doc.id}')">⭐</button>
-        <button onclick="editRecipe('${doc.id}')">✏️</button>
-        <button onclick="deleteRecipe('${doc.id}')">❌</button>
-      `;
-      list.appendChild(item);
-    }
+    const item = document.createElement("li");
+    item.innerHTML = `
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}
+    `;
+    list.appendChild(item);
   });
-}
-
-// ✅ Filter Recipes
-function filterRecipes() {
-  const filterText = document.getElementById("filterInput").value.toLowerCase();
-  getRecipes(filterText);
 }
