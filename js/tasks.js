@@ -1,5 +1,13 @@
-import { db } from "./firebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let genAI;
@@ -20,6 +28,31 @@ async function getApiKey() {
   } catch (error) {
     console.error("🚨 Error fetching API key:", error.message);
     appendMessage("🚨 Chatbot error: API Key issue.");
+  }
+}
+
+// ✅ Chatbot AI Query (Fixing the Missing Function)
+async function askChatBot(request) {
+  if (!model) {
+    appendMessage("🚨 AI is not ready yet. Please wait.");
+    return;
+  }
+
+  try {
+    appendMessage(`🧑‍💻 You: ${request}`);
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: request }] }],
+    });
+
+    const aiResponse =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "🚫 No meaningful response from AI.";
+
+    appendMessage(`🤖 AI: ${aiResponse}`);
+  } catch (error) {
+    console.error("🚨 Chatbot Error:", error);
+    appendMessage(`🚨 Chatbot Error: ${error.message}`);
   }
 }
 
@@ -63,6 +96,8 @@ function ruleChatBot(request) {
 // ✅ Display Chatbot Messages
 function appendMessage(message) {
   const chatHistory = document.getElementById("chat-history");
+  if (!chatHistory) return;
+
   const historyItem = document.createElement("div");
   historyItem.textContent = message;
   historyItem.className = "history";
@@ -86,90 +121,5 @@ function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ Check if user is authenticated
-const email = JSON.parse(localStorage.getItem("email"));
-if (!email) {
-  window.location.href = "index.html";
-}
-
-// ✅ Sign Out Function
-const signOutBttn = document.getElementById("signOutBttn");
-signOutBttn.addEventListener("click", () => {
-  localStorage.removeItem("email");
-  window.location.href = "index.html";
-});
-
-// ✅ Add Recipe to Firestore with authenticated user email
-async function addRecipe(name, category, ingredients) {
-  const email = JSON.parse(localStorage.getItem("email"));
-  if (!email) {
-    alert("You must be logged in to add recipes.");
-    return;
-  }
-
-  try {
-    await addDoc(collection(db, "recipes"), {
-      name,
-      category,
-      ingredients,
-      email,
-      created_at: new Date(),
-    });
-    alert(`✅ Recipe "${name}" added!`);
-    getRecipes(); // Refresh list
-  } catch (error) {
-    console.error("🚨 Error adding recipe:", error);
-    alert(`🚨 Error adding recipe: ${error.message}`);
-  }
-}
-
-// ✅ Get User Recipes from Firestore
-async function getRecipes() {
-  const email = JSON.parse(localStorage.getItem("email"));
-  if (!email) {
-    alert("You must be logged in to view recipes.");
-    return;
-  }
-
-  try {
-    const q = query(collection(db, "recipes"), where("email", "==", email));
-    const snapshot = await getDocs(q);
-    const list = document.getElementById("recipeList");
-    list.innerHTML = "";
-
-    if (snapshot.empty) {
-      list.innerHTML = "<p>🚫 No recipes found.</p>";
-      return;
-    }
-
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const item = document.createElement("li");
-      item.innerHTML = `
-        <strong>${data.name}</strong> - ${data.category}<br>
-        Ingredients: ${data.ingredients.join(", ")}
-      `;
-      list.appendChild(item);
-    });
-  } catch (error) {
-    console.error("🚨 Error fetching recipes:", error);
-  }
-}
-
-// ✅ Event Listeners
-document.getElementById("addRecipeBtn").addEventListener("click", () => {
-  const name = document.getElementById("recipeInput").value.trim();
-  const category = document.getElementById("categoryInput").value.trim();
-  const ingredients = document
-    .getElementById("ingredientsInput")
-    .value.trim()
-    .split(",");
-  if (name && category && ingredients.length > 0) {
-    addRecipe(name, category, ingredients);
-  } else {
-    alert("🚨 Please fill out all fields.");
-  }
-});
-
-// ✅ Fetch Recipes on Load
-window.addEventListener("DOMContentLoaded", getRecipes);
+// ✅ Fetch API Key on Load
+window.addEventListener("DOMContentLoaded", getApiKey);
