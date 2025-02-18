@@ -270,6 +270,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 let genAI;
 let model;
 
+// ✅ Ensure DOM elements are available before running scripts
+document.addEventListener("DOMContentLoaded", () => {
+  setupEventListeners();
+  getApiKey(); // Fetch API Key for Chatbot
+  getRecipes(); // Load existing recipes
+});
+
 // ✅ Fetch Google Gemini API Key from Firestore
 async function getApiKey() {
   try {
@@ -304,18 +311,9 @@ async function askChatBot(request) {
 
     console.log("🟡 AI Full Response:", result);
 
-    let aiResponse = "";
-    if (
-      result?.candidates &&
-      result.candidates.length > 0 &&
-      result.candidates[0]?.content?.parts?.length > 0
-    ) {
-      aiResponse = result.candidates[0].content.parts
-        .map((part) => part.text)
-        .join("\n");
-    } else {
-      aiResponse = "🚫 AI did not generate a response.";
-    }
+    let aiResponse =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "🚫 AI did not generate a response.";
 
     appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
@@ -364,6 +362,8 @@ function ruleChatBot(request) {
 // ✅ Append Messages to Chat
 function appendMessage(message) {
   const chatHistory = document.getElementById("chat-history");
+  if (!chatHistory) return;
+
   const historyItem = document.createElement("div");
   historyItem.textContent = message;
   historyItem.className = "history";
@@ -374,6 +374,8 @@ function appendMessage(message) {
 // ✅ Handle Chat Input
 function handleChatInput() {
   const chatInput = document.getElementById("chat-input");
+  if (!chatInput) return;
+
   const prompt = chatInput.value.trim();
   if (prompt) {
     if (!ruleChatBot(prompt)) {
@@ -385,23 +387,45 @@ function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ Event Listener for Chatbot
-document.getElementById("send-btn").addEventListener("click", handleChatInput);
+// ✅ Setup Event Listeners
+function setupEventListeners() {
+  const sendBtn = document.getElementById("send-btn");
+  if (sendBtn) sendBtn.addEventListener("click", handleChatInput);
 
-// ✅ Check if User is Authenticated
-const email = JSON.parse(localStorage.getItem("email"));
-if (!email) {
+  const addRecipeBtn = document.getElementById("addRecipeBtn");
+  if (addRecipeBtn) addRecipeBtn.addEventListener("click", addRecipeHandler);
+
+  const filterBtn = document.getElementById("filterBtn");
+  if (filterBtn) filterBtn.addEventListener("click", filterRecipes);
+
+  const signOutBttn = document.getElementById("signOutBttn");
+  if (signOutBttn) signOutBttn.addEventListener("click", signOut);
+}
+
+// ✅ Sign Out Function
+function signOut() {
+  localStorage.removeItem("email");
   window.location.href = "index.html";
 }
 
-// ✅ Sign Out
-document.getElementById("signOutBttn").addEventListener("click", () => {
-  localStorage.removeItem("email");
-  window.location.href = "index.html";
-});
+// ✅ Add Recipe Handler
+function addRecipeHandler() {
+  const name = document.getElementById("recipeInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const ingredients = document
+    .getElementById("ingredientsInput")
+    .value.trim()
+    .split(",");
+  if (name && category && ingredients.length > 0) {
+    addRecipe(name, category, ingredients);
+  } else {
+    alert("🚨 Please fill out all fields.");
+  }
+}
 
 // ✅ Add Recipe to Firestore
 async function addRecipe(name, category, ingredients) {
+  const email = JSON.parse(localStorage.getItem("email"));
   if (!email) {
     alert("You must be logged in to add recipes.");
     return;
@@ -416,23 +440,16 @@ async function addRecipe(name, category, ingredients) {
       favorite: false,
       created_at: new Date(),
     });
-    alert(`✅ Recipe "${name}" added!`);
     getRecipes();
   } catch (error) {
     console.error("🚨 Error adding recipe:", error);
-    alert(`🚨 Error adding recipe: ${error.message}`);
   }
 }
 
 // ✅ Delete Recipe
 async function deleteRecipe(recipeId) {
-  try {
-    await deleteDoc(doc(db, "recipes", recipeId));
-    console.log(`✅ Recipe deleted.`);
-    getRecipes();
-  } catch (error) {
-    console.error("🚨 Error deleting recipe:", error);
-  }
+  await deleteDoc(doc(db, "recipes", recipeId));
+  getRecipes();
 }
 
 // ✅ Edit Recipe
@@ -442,94 +459,58 @@ async function editRecipe(recipeId) {
   const newIngredients = prompt("Enter new ingredients (comma-separated):");
 
   if (newName && newCategory && newIngredients) {
-    try {
-      await updateDoc(doc(db, "recipes", recipeId), {
-        name: newName,
-        category: newCategory,
-        ingredients: newIngredients.split(",").map((i) => i.trim()),
-      });
-      console.log("✅ Recipe updated.");
-      getRecipes();
-    } catch (error) {
-      console.error("🚨 Error updating recipe:", error);
-    }
+    await updateDoc(doc(db, "recipes", recipeId), {
+      name: newName,
+      category: newCategory,
+      ingredients: newIngredients.split(","),
+    });
+    getRecipes();
   } else {
     alert("🚨 Please fill in all fields.");
   }
 }
 
-// ✅ Favorite Recipe
+// ✅ Toggle Favorite Recipe
 async function toggleFavorite(recipeId) {
   const recipeRef = doc(db, "recipes", recipeId);
   const recipeSnapshot = await getDoc(recipeRef);
   const currentFavorite = recipeSnapshot.data().favorite || false;
-
-  try {
-    await updateDoc(recipeRef, { favorite: !currentFavorite });
-    console.log("✅ Favorite status updated.");
-    getRecipes();
-  } catch (error) {
-    console.error("🚨 Error updating favorite status:", error);
-  }
+  await updateDoc(recipeRef, { favorite: !currentFavorite });
+  getRecipes();
 }
 
-// ✅ Get Recipes from Firestore (Supports Filters)
+// ✅ Get Recipes (Supports Filtering)
 async function getRecipes(filter = "") {
-  try {
-    const q = query(collection(db, "recipes"), where("email", "==", email));
-    const snapshot = await getDocs(q);
-    const list = document.getElementById("recipeList");
-    list.innerHTML = "";
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) return;
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      if (
-        !filter ||
-        data.name.toLowerCase().includes(filter) ||
-        data.category.toLowerCase().includes(filter) ||
-        data.ingredients.some((ing) => ing.toLowerCase().includes(filter))
-      ) {
-        const item = document.createElement("li");
-        item.innerHTML = `
-          <strong>${data.name}</strong> (${data.category})<br>
-          Ingredients: ${data.ingredients.join(", ")}<br>
-          <button class="fav-btn" data-id="${doc.id}" style="color: ${
-          data.favorite ? "gold" : "black"
-        }">⭐</button>
-          <button class="edit-btn" data-id="${doc.id}">✏️ Edit</button>
-          <button class="delete-btn" data-id="${doc.id}">❌ Delete</button>
-        `;
-        list.appendChild(item);
-      }
-    });
+  const q = query(collection(db, "recipes"), where("email", "==", email));
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
 
-    document
-      .querySelectorAll(".fav-btn")
-      .forEach((btn) =>
-        btn.addEventListener("click", (e) =>
-          toggleFavorite(e.target.dataset.id)
-        )
-      );
-    document
-      .querySelectorAll(".edit-btn")
-      .forEach((btn) =>
-        btn.addEventListener("click", (e) => editRecipe(e.target.dataset.id))
-      );
-    document
-      .querySelectorAll(".delete-btn")
-      .forEach((btn) =>
-        btn.addEventListener("click", (e) => deleteRecipe(e.target.dataset.id))
-      );
-  } catch (error) {
-    console.error("🚨 Error fetching recipes:", error);
-  }
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (
+      !filter ||
+      data.name.includes(filter) ||
+      data.category.includes(filter)
+    ) {
+      const item = document.createElement("li");
+      item.innerHTML = `
+        <strong>${data.name}</strong> (${data.category})<br>
+        Ingredients: ${data.ingredients.join(", ")}<br>
+        <button onclick="toggleFavorite('${doc.id}')">⭐</button>
+        <button onclick="editRecipe('${doc.id}')">✏️</button>
+        <button onclick="deleteRecipe('${doc.id}')">❌</button>
+      `;
+      list.appendChild(item);
+    }
+  });
 }
 
-// ✅ Event Listener for Filtering
-document.getElementById("filterBtn").addEventListener("click", () => {
+// ✅ Filter Recipes
+function filterRecipes() {
   const filterText = document.getElementById("filterInput").value.toLowerCase();
   getRecipes(filterText);
-});
-
-// ✅ Fetch Recipes on Load
-window.addEventListener("DOMContentLoaded", getRecipes);
+}
