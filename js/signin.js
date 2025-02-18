@@ -13,8 +13,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // ✅ Google Sign-In Function
-  function signIn() {
+  signInBttn.addEventListener("click", () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        localStorage.setItem("email", JSON.stringify(user.email));
+        window.location.href = "/RecipeOrganizer/tasks.html";
+      })
+      .catch((error) => {
+        console.error("Sign-in Error:", error.message);
+        alert(`Sign-in failed: ${error.message}`);
+      });
+  });
+});
+
+// ✅ Google Sign-In Function
+/*function signIn() {
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
@@ -29,4 +43,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Attach Event Listener
   signInBttn.addEventListener("click", signIn);
-});
+});*/
