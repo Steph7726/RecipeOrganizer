@@ -504,7 +504,7 @@ async function getRecipes(filter = "") {
   });
 }*/
 
-import { db } from "./firebase.js";
+/*import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -713,5 +713,184 @@ async function getRecipes() {
       Ingredients: ${data.ingredients.join(", ")}
     `;
     list.appendChild(item);
+  });
+}*/
+
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import { getApiKey, askChatBot, handleChatInput } from "./chatbot.js";
+
+// ✅ Ensure DOM elements exist before executing
+document.addEventListener("DOMContentLoaded", async () => {
+  setupEventListeners();
+  await getApiKey(db);
+  getRecipes();
+});
+
+// ✅ Setup Event Listeners
+function setupEventListeners() {
+  document
+    .getElementById("send-btn")
+    ?.addEventListener("click", handleChatInput);
+  document
+    .getElementById("addRecipeBtn")
+    ?.addEventListener("click", addRecipeHandler);
+  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
+  document
+    .getElementById("filterBtn")
+    ?.addEventListener("click", filterRecipes);
+}
+
+// ✅ Sign Out Function
+function signOut() {
+  localStorage.removeItem("email");
+  window.location.href = "index.html";
+}
+
+// ✅ Add Recipe Handler
+function addRecipeHandler() {
+  const name = document.getElementById("recipeInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const ingredients = document
+    .getElementById("ingredientsInput")
+    .value.trim()
+    .split(",");
+  if (name && category && ingredients.length > 0) {
+    addRecipe(name, category, ingredients);
+  } else {
+    alert("🚨 Please fill out all fields.");
+  }
+}
+
+// ✅ Add Recipe to Firestore
+async function addRecipe(name, category, ingredients) {
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) {
+    alert("You must be logged in to add recipes.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name,
+      category,
+      ingredients,
+      email,
+      favorite: false,
+      created_at: new Date(),
+    });
+    getRecipes();
+  } catch (error) {
+    console.error("🚨 Error adding recipe:", error);
+  }
+}
+
+// ✅ Delete Recipe
+async function deleteRecipe(recipeId) {
+  await deleteDoc(doc(db, "recipes", recipeId));
+  getRecipes();
+}
+
+// ✅ Edit Recipe
+async function editRecipe(recipeId) {
+  const newName = prompt("Enter new recipe name:");
+  const newCategory = prompt("Enter new category:");
+  const newIngredients = prompt("Enter new ingredients (comma-separated):");
+
+  if (newName && newCategory && newIngredients) {
+    await updateDoc(doc(db, "recipes", recipeId), {
+      name: newName,
+      category: newCategory,
+      ingredients: newIngredients.split(","),
+    });
+    getRecipes();
+  } else {
+    alert("🚨 Please fill in all fields.");
+  }
+}
+
+// ✅ Toggle Favorite Recipe
+async function toggleFavorite(recipeId) {
+  const recipeRef = doc(db, "recipes", recipeId);
+  const recipeSnapshot = await getDoc(recipeRef);
+  const currentFavorite = recipeSnapshot.data().favorite || false;
+  await updateDoc(recipeRef, { favorite: !currentFavorite });
+  getRecipes();
+}
+
+// ✅ Get Recipes
+async function getRecipes() {
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) return;
+
+  const q = query(collection(db, "recipes"), where("email", "==", email));
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const item = document.createElement("li");
+    item.innerHTML = `
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}
+      <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
+      <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
+      <button onclick="toggleFavorite('${doc.id}')">⭐ ${
+      data.favorite ? "Unfavorite" : "Favorite"
+    }</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ✅ Filter Recipes
+async function filterRecipes() {
+  const ingredientFilter = document
+    .getElementById("ingredientFilter")
+    .value.toLowerCase();
+  const categoryFilter = document
+    .getElementById("categoryFilter")
+    .value.toLowerCase();
+
+  const q = query(
+    collection(db, "recipes"),
+    where("email", "==", JSON.parse(localStorage.getItem("email")))
+  );
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (
+      (!ingredientFilter ||
+        data.ingredients.some((ing) =>
+          ing.toLowerCase().includes(ingredientFilter)
+        )) &&
+      (!categoryFilter || data.category.toLowerCase().includes(categoryFilter))
+    ) {
+      const item = document.createElement("li");
+      item.innerHTML = `
+        <strong>${data.name}</strong> (${data.category})<br>
+        Ingredients: ${data.ingredients.join(", ")}
+        <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
+        <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
+        <button onclick="toggleFavorite('${doc.id}')">⭐ ${
+        data.favorite ? "Unfavorite" : "Favorite"
+      }</button>
+      `;
+      list.appendChild(item);
+    }
   });
 }
