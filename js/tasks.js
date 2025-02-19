@@ -252,7 +252,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   getRecipes();
 });*/
 
-import { db } from "./firebase.js";
+/*import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -313,9 +313,11 @@ async function askChatBot(request) {
 
     console.log("🟡 AI Full Response:", result);
 
-    let aiResponse =
-      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "🚫 AI did not generate a response.";
+    let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    if (!aiResponse) {
+      aiResponse = "🚫 AI could not generate a meaningful response.";
+    }
 
     appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
@@ -483,6 +485,218 @@ async function toggleFavorite(recipeId) {
 
 // ✅ Get Recipes (Supports Filtering)
 async function getRecipes(filter = "") {
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) return;
+
+  const q = query(collection(db, "recipes"), where("email", "==", email));
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const item = document.createElement("li");
+    item.innerHTML = `
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}
+    `;
+    list.appendChild(item);
+  });
+}*/
+
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// ✅ Global Variables
+let genAI;
+let model;
+let apiKeyLoaded = false;
+
+// ✅ Ensure DOM elements exist before executing
+document.addEventListener("DOMContentLoaded", async () => {
+  setupEventListeners();
+  await getApiKey();
+  getRecipes();
+});
+
+// ✅ Fetch Google Gemini API Key from Firestore
+async function getApiKey() {
+  try {
+    const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+    if (snapshot.exists()) {
+      const apiKey = snapshot.data().key;
+      console.log("✅ Google Gemini API Key Loaded:", apiKey);
+      genAI = new GoogleGenerativeAI(apiKey);
+      model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      apiKeyLoaded = true;
+    } else {
+      appendMessage("🚨 No Google Gemini API key found in Firestore");
+    }
+  } catch (error) {
+    console.error("🚨 Error fetching API key:", error.message);
+    appendMessage("🚨 Chatbot error: API Key issue.");
+  }
+}
+
+// ✅ Handle Chatbot Commands
+function ruleChatBot(request) {
+  const lowerCaseRequest = request.toLowerCase();
+
+  if (lowerCaseRequest.startsWith("add recipe")) {
+    const details = lowerCaseRequest
+      .replace("add recipe", "")
+      .trim()
+      .split(";");
+    const [name, category, ingredients] = details;
+    if (name && category && ingredients) {
+      addRecipe(name.trim(), category.trim(), ingredients.split(","));
+      appendMessage(`✅ Recipe '${name}' added successfully!`);
+    } else {
+      appendMessage(
+        "⚠️ Format: 'add recipe Name; Category; ingredient1, ingredient2'"
+      );
+    }
+    return true;
+  }
+
+  if (lowerCaseRequest.startsWith("show recipes")) {
+    getRecipes();
+    appendMessage("📜 Showing all your recipes...");
+    return true;
+  }
+
+  return false;
+}
+
+// ✅ Append Messages to Chat
+function appendMessage(message) {
+  const chatHistory = document.getElementById("chat-history");
+  if (!chatHistory) return;
+
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+// ✅ Handle Chat Input
+function handleChatInput() {
+  const chatInput = document.getElementById("chat-input");
+  if (!chatInput) return;
+
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    if (!ruleChatBot(prompt)) {
+      askChatBot(prompt);
+    }
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
+}
+
+// ✅ Setup Event Listeners
+function setupEventListeners() {
+  document
+    .getElementById("send-btn")
+    ?.addEventListener("click", handleChatInput);
+  document
+    .getElementById("addRecipeBtn")
+    ?.addEventListener("click", addRecipeHandler);
+  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
+}
+
+// ✅ Sign Out Function
+function signOut() {
+  localStorage.removeItem("email");
+  window.location.href = "index.html";
+}
+
+// ✅ Add Recipe Handler
+function addRecipeHandler() {
+  const name = document.getElementById("recipeInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const ingredients = document
+    .getElementById("ingredientsInput")
+    .value.trim()
+    .split(",");
+  if (name && category && ingredients.length > 0) {
+    addRecipe(name, category, ingredients);
+  } else {
+    alert("🚨 Please fill out all fields.");
+  }
+}
+
+// ✅ Add Recipe to Firestore
+async function addRecipe(name, category, ingredients) {
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) {
+    alert("You must be logged in to add recipes.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name,
+      category,
+      ingredients,
+      email,
+      favorite: false,
+      created_at: new Date(),
+    });
+    getRecipes();
+  } catch (error) {
+    console.error("🚨 Error adding recipe:", error);
+  }
+}
+
+// ✅ Delete Recipe
+async function deleteRecipe(recipeId) {
+  await deleteDoc(doc(db, "recipes", recipeId));
+  getRecipes();
+}
+
+// ✅ Edit Recipe
+async function editRecipe(recipeId) {
+  const newName = prompt("Enter new recipe name:");
+  const newCategory = prompt("Enter new category:");
+  const newIngredients = prompt("Enter new ingredients (comma-separated):");
+
+  if (newName && newCategory && newIngredients) {
+    await updateDoc(doc(db, "recipes", recipeId), {
+      name: newName,
+      category: newCategory,
+      ingredients: newIngredients.split(","),
+    });
+    getRecipes();
+  } else {
+    alert("🚨 Please fill in all fields.");
+  }
+}
+
+// ✅ Toggle Favorite Recipe
+async function toggleFavorite(recipeId) {
+  const recipeRef = doc(db, "recipes", recipeId);
+  const recipeSnapshot = await getDoc(recipeRef);
+  const currentFavorite = recipeSnapshot.data().favorite || false;
+  await updateDoc(recipeRef, { favorite: !currentFavorite });
+  getRecipes();
+}
+
+// ✅ Get Recipes
+async function getRecipes() {
   const email = JSON.parse(localStorage.getItem("email"));
   if (!email) return;
 
