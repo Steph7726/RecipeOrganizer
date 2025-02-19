@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "./firebase.js";
 
 // ✅ Global Variables
 let genAI;
@@ -6,7 +8,7 @@ let model;
 let apiKeyLoaded = false;
 
 // ✅ Fetch Google Gemini API Key from Firestore
-export async function getApiKey(db) {
+export async function getApiKey() {
   try {
     const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
     if (snapshot.exists()) {
