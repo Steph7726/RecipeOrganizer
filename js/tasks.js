@@ -1092,9 +1092,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // ✅ Setup Event Listeners
 function setupEventListeners() {
-  document
-    .getElementById("send-btn")
-    ?.addEventListener("click", handleChatInput);
+  document.getElementById("send-btn")?.addEventListener("click", () => {
+    const chatInput = document.getElementById("chat-input").value.trim();
+    if (chatInput) {
+      askChatBot(chatInput); // ✅ Call the chatbot function
+    }
+  });
+
   document
     .getElementById("addRecipeBtn")
     ?.addEventListener("click", addRecipeHandler);
