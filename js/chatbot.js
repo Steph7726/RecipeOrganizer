@@ -42,9 +42,14 @@ export async function askChatBot(request) {
 
     console.log("🟡 AI Full Response:", result);
 
+    if (result && result.candidates) {
+      console.log("AI Candidates:", result.candidates);
+    }
+
     let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiResponse) {
+      console.warn("AI returned no valid response.");
       aiResponse = "🚫 AI could not generate a meaningful response.";
     }
 

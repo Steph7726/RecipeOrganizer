@@ -1247,15 +1247,27 @@ async function filterRecipes() {
     }
   });
 
-  // Reset Filter
-  if (ingredientFilter || categoryFilter) {
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "Reset Filters";
-    resetButton.addEventListener("click", () => {
-      document.getElementById("ingredientFilter").value = "";
-      document.getElementById("categoryFilter").value = "";
-      getRecipes();
-    });
-    list.appendChild(resetButton);
-  }
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", () => deleteRecipe(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", () => editRecipe(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".favorite-btn").forEach((btn) => {
+    btn.addEventListener("click", () => toggleFavorite(btn.dataset.id));
+  });
+}
+
+// Reset Filter
+if (ingredientFilter || categoryFilter) {
+  const resetButton = document.createElement("button");
+  resetButton.textContent = "Reset Filters";
+  resetButton.addEventListener("click", () => {
+    document.getElementById("ingredientFilter").value = "";
+    document.getElementById("categoryFilter").value = "";
+    getRecipes();
+  });
+  list.appendChild(resetButton);
 }
