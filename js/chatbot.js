@@ -28,7 +28,7 @@ export async function getApiKey() {
 
 // ✅ Ask Chatbot
 export async function askChatBot(request) {
-  if (!apiKeyLoaded || !model) {
+  if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
     return;
   }

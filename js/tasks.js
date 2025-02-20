@@ -1237,8 +1237,25 @@ async function filterRecipes() {
       item.innerHTML = `
         <strong>${data.name}</strong> (${data.category})<br>
         Ingredients: ${data.ingredients.join(", ")}
+        <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
+        <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
+        <button onclick="toggleFavorite('${doc.id}')">⭐ ${
+        data.favorite ? "Unfavorite" : "Favorite"
+      }</button>
       `;
       list.appendChild(item);
     }
   });
+
+  // Reset Filter
+  if (ingredientFilter || categoryFilter) {
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset Filters";
+    resetButton.addEventListener("click", () => {
+      document.getElementById("ingredientFilter").value = "";
+      document.getElementById("categoryFilter").value = "";
+      getRecipes();
+    });
+    list.appendChild(resetButton);
+  }
 }
