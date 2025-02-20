@@ -131,9 +131,20 @@ export async function askChatBot(request) {
     console.log("🟡 AI Full Response:", result);
 
     // ✅ Extract AI response correctly
-    let aiResponse =
-      result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    let aiResponse = "";
+
+    // New logic to properly extract response
+    if (
+      result &&
+      result.response &&
+      result.response.candidates &&
+      result.response.candidates.length > 0
+    ) {
+      aiResponse =
+        result.response.candidates[0]?.content?.parts?.[0]?.text?.trim();
+    } else if (result && result.candidates && result.candidates.length > 0) {
+      aiResponse = result.candidates[0]?.content?.parts?.[0]?.text?.trim();
+    }
 
     if (!aiResponse || aiResponse.length < 5) {
       console.warn("⚠️ AI did not generate a valid response.");
