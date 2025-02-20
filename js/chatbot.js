@@ -114,9 +114,9 @@ export async function getApiKey() {
   }
 }
 
-// ✅ Ask AI Chatbot (Only for App-Related Questions)
+// ✅ Ask Chatbot
 export async function askChatBot(request) {
-  if (!apiKeyLoaded || !genAI || !model) {
+  if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
     return;
   }
@@ -124,32 +124,15 @@ export async function askChatBot(request) {
   try {
     appendMessage(`🧑‍💻 You: ${request}`);
 
-    const prompt = `
-      You are a chatbot assistant for a Recipe Organizer app.
-      Users may ask about how to use the app.
-      Respond clearly and concisely to their questions.
-      Example Questions:
-      - How do I add a recipe?
-      - How do I delete a recipe?
-      - How do I search for a recipe?
-      - How do I favorite a recipe?
-    `;
-
     const result = await model.generateContent({
-      contents: [
-        { role: "user", parts: [{ text: `${prompt} \n\nUser: ${request}` }] },
-      ],
+      contents: [{ role: "user", parts: [{ text: request }] }],
     });
 
     console.log("🟡 AI Full Response:", result);
 
-    let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-    if (!aiResponse || aiResponse.length < 5) {
-      console.warn("🚫 AI returned no valid response.");
-      aiResponse = "🚫 AI could not generate a meaningful response.";
-    }
-
+    let aiResponse =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "🚫 AI could not generate a meaningful response.";
     appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
     console.error("🚨 Chatbot Error:", error);
@@ -178,7 +161,7 @@ export function handleChatInput() {
   if (prompt) {
     askChatBot(prompt);
   } else {
-    appendMessage("⚠️ Please enter a question about the app.");
+    appendMessage("⚠️ Please enter a prompt.");
   }
   chatInput.value = "";
 }
