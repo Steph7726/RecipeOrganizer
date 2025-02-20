@@ -102,12 +102,11 @@ export async function getApiKey() {
     if (snapshot.exists()) {
       const apiKey = snapshot.data().key;
       console.log("✅ Google Gemini API Key Loaded:", apiKey);
-
       genAI = new GoogleGenerativeAI(apiKey);
       model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       apiKeyLoaded = true;
     } else {
-      appendMessage("🚨 No Google Gemini API key found in Firestore.");
+      appendMessage("🚨 No Google Gemini API key found in Firestore");
     }
   } catch (error) {
     console.error("🚨 Error fetching API key:", error.message);
@@ -115,9 +114,9 @@ export async function getApiKey() {
   }
 }
 
-// ✅ Ask Chatbot (Fixed AI Response Extraction)
+// ✅ Process User Input for AI
 export async function askChatBot(request) {
-  if (!apiKeyLoaded || !model) {
+  if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
     return;
   }
@@ -131,44 +130,24 @@ export async function askChatBot(request) {
 
     console.log("🟡 AI Full Response:", result);
 
-    // 🔹 Check if AI generated valid candidates
-    if (!result?.candidates || result.candidates.length === 0) {
-      console.warn("⚠️ AI did not generate a valid response.");
-      appendMessage("🚫 AI could not generate a meaningful response.");
-      return;
-    }
-
-    // 🔹 Extract AI response correctly
-    const aiResponse = result.candidates[0]?.content?.parts
-      ?.map((part) => part.text)
-      .join(" ")
-      .trim();
+    // ✅ Extract AI response correctly
+    let aiResponse =
+      result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiResponse || aiResponse.length < 5) {
-      console.warn("⚠️ AI returned an empty or invalid response.");
-      appendMessage("🚫 AI could not generate a meaningful response.");
-    } else {
-      appendMessage(`🤖 AI: ${aiResponse}`);
+      console.warn("⚠️ AI did not generate a valid response.");
+      aiResponse = "🚫 AI could not generate a meaningful response.";
     }
+
+    appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
     console.error("🚨 Chatbot Error:", error);
     appendMessage(`🚨 Chatbot Error: ${error.message || "Could not reach AI"}`);
   }
 }
 
-// ✅ Append Chat Messages
-function appendMessage(message) {
-  const chatHistory = document.getElementById("chat-history");
-  if (!chatHistory) return;
-
-  const historyItem = document.createElement("div");
-  historyItem.textContent = message;
-  historyItem.className = "history";
-  chatHistory.appendChild(historyItem);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-// ✅ Handle Chat Input
+// ✅ Handle Chat Input (Send Button)
 export function handleChatInput() {
   const chatInput = document.getElementById("chat-input");
   if (!chatInput) return;
@@ -182,7 +161,19 @@ export function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ Ensure Chatbot UI Listeners are Set
+// ✅ Display Chatbot Messages
+function appendMessage(message) {
+  const chatHistory = document.getElementById("chat-history");
+  if (!chatHistory) return;
+
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+// ✅ Add Event Listeners
 document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("send-btn")
