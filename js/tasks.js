@@ -1258,16 +1258,16 @@ async function filterRecipes() {
   document.querySelectorAll(".favorite-btn").forEach((btn) => {
     btn.addEventListener("click", () => toggleFavorite(btn.dataset.id));
   });
-}
 
-// Reset Filter
-if (ingredientFilter || categoryFilter) {
-  const resetButton = document.createElement("button");
-  resetButton.textContent = "Reset Filters";
-  resetButton.addEventListener("click", () => {
-    document.getElementById("ingredientFilter").value = "";
-    document.getElementById("categoryFilter").value = "";
-    getRecipes();
-  });
-  list.appendChild(resetButton);
+  // Reset Filter
+  if (ingredientFilter || categoryFilter) {
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "Reset Filters";
+    resetButton.addEventListener("click", () => {
+      document.getElementById("ingredientFilter").value = "";
+      document.getElementById("categoryFilter").value = "";
+      getRecipes();
+    });
+    list.appendChild(resetButton);
+  }
 }
