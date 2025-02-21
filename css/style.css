@@ -118,6 +118,9 @@ Chatbot UI Styles
     🟡 Global Styles
 ============================== */
 
+/* ==============================
+    🌟 General Styles
+============================== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -130,9 +133,9 @@ body {
   color: #333;
 }
 
-/* Header Styling */
+/* ✅ Lighter Header Color */
 h1 {
-  background-color: #d95c5c; /* Tomato Red */
+  background-color: #f7a399; /* Soft Peach */
   color: white;
   padding: 15px;
   font-size: 28px;
@@ -141,7 +144,7 @@ h1 {
 
 header {
   padding: 10px 0;
-  background-color: #d95c5c;
+  background-color: #f7a399; /* Same as chatbot header */
   color: white;
   font-size: 22px;
   font-weight: bold;
@@ -179,12 +182,12 @@ input:focus {
 }
 
 /* ==============================
-    🟠 Buttons
+    🟢 Buttons (Lighter Colors)
 ============================== */
 button {
   padding: 10px 15px;
   font-size: 14px;
-  background-color: #ff9800; /* Warm Orange */
+  background-color: #fdd9a0; /* Soft Orange */
   color: white;
   border: none;
   border-radius: 5px;
@@ -193,7 +196,7 @@ button {
 }
 
 button:hover {
-  background-color: #e68900;
+  background-color: #fbc58a;
   transform: translateY(-2px);
 }
 
@@ -202,28 +205,28 @@ button:focus {
   box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
 }
 
-/* Sign-in and Sign-out Buttons */
+/* ✅ Sign-in and Sign-out Buttons */
 #signIn {
   padding: 12px 20px;
   font-size: 16px;
-  background-color: #34a853; /* Green */
+  background-color: #6bbf59; /* Soft Green */
   color: white;
   border-radius: 5px;
 }
 
 #signIn:hover {
-  background-color: #2c8b44;
+  background-color: #5aa64b;
 }
 
 #signOutBttn {
   padding: 10px 20px;
-  background-color: #d9534f; /* Red */
+  background-color: #f28b82; /* Light Red */
   color: white;
   border-radius: 5px;
 }
 
 #signOutBttn:hover {
-  background-color: #c9302c;
+  background-color: #e57368;
 }
 
 /* ==============================
@@ -260,32 +263,32 @@ li {
   gap: 8px;
 }
 
-/* Delete, Edit, and Favorite Buttons (Lighter Colors) */
+/* ✅ Lighter Buttons for Delete, Edit, Favorite */
 .delete-btn {
-  background-color: #f8d7da; /* Light Red */
-  color: #721c24; /* Dark Red */
+  background-color: #ffe5e5; /* Soft Red */
+  color: #721c24;
 }
 
 .delete-btn:hover {
-  background-color: #f5c6cb;
+  background-color: #ffc1c1;
 }
 
 .edit-btn {
-  background-color: #d1ecf1; /* Light Blue */
-  color: #0c5460; /* Dark Blue */
+  background-color: #d5ecff; /* Soft Blue */
+  color: #0c5460;
 }
 
 .edit-btn:hover {
-  background-color: #bee5eb;
+  background-color: #b3dcff;
 }
 
 .favorite-btn {
-  background-color: #fff3cd; /* Light Yellow */
-  color: #856404; /* Dark Gold */
+  background-color: #fff8c1; /* Soft Yellow */
+  color: #856404;
 }
 
 .favorite-btn:hover {
-  background-color: #ffeeba;
+  background-color: #ffef99;
 }
 
 /* ==============================
@@ -306,12 +309,12 @@ li {
   transition: max-height 0.3s ease-in-out;
 }
 
-/* Chatbot Header */
+/* ✅ Chatbot Header Matches App Header */
 #chatbot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #d95c5c; /* Red */
+  background: #f7a399; /* Same as App Header */
   color: white;
   padding: 10px;
   font-size: 16px;
@@ -319,7 +322,7 @@ li {
   border-radius: 6px 6px 0 0;
 }
 
-/* Minimize Button (Now White for Visibility) */
+/* ✅ Minimize Button (White for Visibility) */
 #toggle-chatbot {
   background: none;
   border: none;
@@ -332,7 +335,7 @@ li {
 }
 
 #toggle-chatbot:hover {
-  color: #ffa500; /* Orange Hover */
+  color: #fff;
 }
 
 /* Chatbot Window */
@@ -396,17 +399,17 @@ li {
   font-size: 14px;
 }
 
-/* Send Button */
+/* ✅ Send Button (Lighter Orange) */
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
-  background-color: #ff9800; /* Orange */
+  background-color: #fdd9a0; /* Soft Orange */
   color: white;
   border-radius: 5px;
 }
 
 #send-btn:hover {
-  background-color: #e68900;
+  background-color: #fbc58a;
 }
 
 /* ==============================
