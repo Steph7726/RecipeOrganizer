@@ -115,10 +115,6 @@ Chatbot UI Styles
 }*/
 
 /* ==============================
-    🟡 Global Styles
-============================== */
-
-/* ==============================
     🌟 General Styles
 ============================== */
 body {
@@ -133,9 +129,9 @@ body {
   color: #333;
 }
 
-/* ✅ Lighter Header Color */
+/* ✅ Updated Header Color */
 h1 {
-  background-color: #f9c7b8; /* Soft Peach */
+  background-color: #e87e6b; /* Warm salmon */
   color: white;
   padding: 15px;
   font-size: 28px;
@@ -144,7 +140,7 @@ h1 {
 
 header {
   padding: 10px 0;
-  background-color: #f9c7b8; /* Same as chatbot header */
+  background-color: #e87e6b; /* Matches chatbot header */
   color: white;
   font-size: 22px;
   font-weight: bold;
@@ -176,19 +172,19 @@ input[type="text"] {
 
 /* Input Focus for Accessibility */
 input:focus {
-  outline: 3px solid #ffa500;
-  box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
+  outline: 3px solid #f4a261;
+  box-shadow: 0 0 5px rgba(244, 162, 97, 0.6);
   transition: outline 0.2s;
 }
 
 /* ==============================
-    🟢 Buttons (Lighter Colors)
+    🟢 Buttons (Balanced Colors)
 ============================== */
 button {
   padding: 10px 15px;
   font-size: 14px;
-  background-color: #fbe6c2; /* Soft Orange */
-  color: #333;
+  background-color: #f4a261; /* Soft amber */
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -196,13 +192,13 @@ button {
 }
 
 button:hover {
-  background-color: #f8d7a8;
+  background-color: #ea8b47;
   transform: translateY(-2px);
 }
 
 button:focus {
-  outline: 3px solid #ffa500;
-  box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
+  outline: 3px solid #f4a261;
+  box-shadow: 0 0 5px rgba(244, 162, 97, 0.6);
 }
 
 /* ✅ Sign-in and Sign-out Buttons */
@@ -220,17 +216,17 @@ button:focus {
 
 #signOutBttn {
   padding: 10px 20px;
-  background-color: #f28b82; /* Light Red */
+  background-color: #e87e6b;
   color: white;
   border-radius: 5px;
 }
 
 #signOutBttn:hover {
-  background-color: #e57368;
+  background-color: #d66c5c;
 }
 
 /* ==============================
-    🍴 Recipe List
+    🍴 Recipe List & Buttons
 ============================== */
 ul {
   list-style: none;
@@ -265,30 +261,30 @@ li {
 
 /* ✅ Lighter Buttons for Delete, Edit, Favorite */
 .delete-btn {
-  background-color: #ffe5e5; /* Soft Red */
+  background-color: #f7b7a3; /* Muted Rose */
   color: #721c24;
 }
 
 .delete-btn:hover {
-  background-color: #ffc1c1;
+  background-color: #f4a399;
 }
 
 .edit-btn {
-  background-color: #d5ecff; /* Soft Blue */
+  background-color: #a7c7e7; /* Light Blue-Gray */
   color: #0c5460;
 }
 
 .edit-btn:hover {
-  background-color: #b3dcff;
+  background-color: #90b8e0;
 }
 
 .favorite-btn {
-  background-color: #fff8c1; /* Soft Yellow */
+  background-color: #f6d365; /* Golden Honey */
   color: #856404;
 }
 
 .favorite-btn:hover {
-  background-color: #ffef99;
+  background-color: #f4c44d;
 }
 
 /* ==============================
@@ -301,7 +297,7 @@ li {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #fff8e1;
+  background: #fce8d5; /* Soft cream */
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -314,7 +310,7 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9c7b8; /* Same as App Header */
+  background: #e87e6b; /* Matches App Header */
   color: white;
   padding: 10px;
   font-size: 16px;
@@ -326,7 +322,7 @@ li {
 #toggle-chatbot {
   background: none;
   border: none;
-  color: white; /* White Icon */
+  color: white;
   font-size: 20px;
   cursor: pointer;
   position: absolute;
@@ -335,7 +331,7 @@ li {
 }
 
 #toggle-chatbot:hover {
-  color: #fff;
+  color: #ffffff;
 }
 
 /* Chatbot Window */
@@ -355,41 +351,6 @@ li {
   overflow: hidden;
 }
 
-/* Chat History */
-#chat-history {
-  height: 200px;
-  overflow-y: auto;
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 10px;
-  padding: 8px;
-  font-size: 14px;
-  background: #fdf6e3;
-  color: #333;
-  border-radius: 5px;
-}
-
-/* Chat Messages */
-.history {
-  font-size: 13px;
-  margin-bottom: 8px;
-  padding: 8px;
-  border-radius: 5px;
-  background-color: #e7e7e7;
-  color: #333;
-}
-
-.history.user {
-  background-color: #e0f7fa;
-  font-weight: bold;
-  text-align: left;
-}
-
-.history.ai {
-  background-color: #e8f5e9;
-  font-weight: bold;
-  text-align: left;
-}
-
 /* Chat Input */
 #chat-input {
   width: calc(100% - 80px);
@@ -399,17 +360,17 @@ li {
   font-size: 14px;
 }
 
-/* ✅ Send Button (Lighter Orange) */
+/* ✅ Send Button (Lighter Amber) */
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
-  background-color: #fbe6c2; /* Soft Orange */
+  background-color: #f4a261;
   color: white;
   border-radius: 5px;
 }
 
 #send-btn:hover {
-  background-color: #f8d7a8;
+  background-color: #ea8b47;
 }
 
 /* ==============================
