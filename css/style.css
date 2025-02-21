@@ -135,7 +135,7 @@ body {
 
 /* ✅ Lighter Header Color */
 h1 {
-  background-color: #f7a399; /* Soft Peach */
+  background-color: #f9c7b8; /* Soft Peach */
   color: white;
   padding: 15px;
   font-size: 28px;
@@ -144,7 +144,7 @@ h1 {
 
 header {
   padding: 10px 0;
-  background-color: #f7a399; /* Same as chatbot header */
+  background-color: #f9c7b8; /* Same as chatbot header */
   color: white;
   font-size: 22px;
   font-weight: bold;
@@ -187,8 +187,8 @@ input:focus {
 button {
   padding: 10px 15px;
   font-size: 14px;
-  background-color: #fdd9a0; /* Soft Orange */
-  color: white;
+  background-color: #fbe6c2; /* Soft Orange */
+  color: #333;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -196,7 +196,7 @@ button {
 }
 
 button:hover {
-  background-color: #fbc58a;
+  background-color: #f8d7a8;
   transform: translateY(-2px);
 }
 
@@ -257,7 +257,7 @@ li {
   text-align: left;
 }
 
-/* Recipe Buttons */
+/* ✅ Recipe Buttons Aligned */
 .recipe-buttons {
   display: flex;
   gap: 8px;
@@ -314,7 +314,7 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f7a399; /* Same as App Header */
+  background: #f9c7b8; /* Same as App Header */
   color: white;
   padding: 10px;
   font-size: 16px;
@@ -403,13 +403,13 @@ li {
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
-  background-color: #fdd9a0; /* Soft Orange */
+  background-color: #fbe6c2; /* Soft Orange */
   color: white;
   border-radius: 5px;
 }
 
 #send-btn:hover {
-  background-color: #fbc58a;
+  background-color: #f8d7a8;
 }
 
 /* ==============================
