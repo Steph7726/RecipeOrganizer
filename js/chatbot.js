@@ -231,19 +231,10 @@ export async function askChatBot(request) {
 
     // **Prepend context instructions instead of using system messages**
     const formattedRequest = `
-    This is a chatbot for a **Recipe Organizer app**.
-    The app allows users to:
-    - **Add, edit, and delete recipes** in Firebase.
-    - **Filter recipes by category or ingredients.**
-    - **Mark recipes as favorites.**
-
-    Answer as clearly as possible. If the user asks:
-    - "How do I add a recipe?" → Reply: "Click 'Add Recipe', enter the details, then click 'Save'."
-    - "How do I delete a recipe?" → Reply: "Find your recipe in the list and click the ❌ Delete button."
-    - "How do I favorite a recipe?" → Reply: "Click the ⭐ Favorite button next to the recipe."
-    - "How do I edit a recipe?" → "Find the recipe you want to edit and click the ✏️Edit button."
-
-    If the user's question is **not related to recipes**, answer normally as a general AI chatbot.
+    This is a chatbot for a **Recipe Organizer app**. 
+    - Users can add, edit, delete, and filter recipes. 
+    - If a user asks about recipes, give **specific steps**. 
+    - If it's a general question, respond normally.
 
     **User's question:** ${request}
     `;
@@ -296,3 +287,30 @@ export function handleChatInput() {
 
 // ✅ Event Listener for Chat Input
 document.getElementById("send-btn")?.addEventListener("click", handleChatInput);
+
+// Chatbot minimimize/maximize
+document.addEventListener("DOMContentLoaded", () => {
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const toggleButton = document.getElementById("toggle-chatbot");
+
+  // ✅ Load Chatbot State from LocalStorage
+  const isChatHidden = localStorage.getItem("chatHidden") === "true";
+  if (isChatHidden) {
+    chatbotContainer.classList.add("chat-hidden");
+    toggleButton.textContent = "➕"; // Show plus sign when minimized
+  }
+
+  // ✅ Toggle Chatbot Visibility on Click
+  toggleButton.addEventListener("click", () => {
+    chatbotContainer.classList.toggle("chat-hidden");
+
+    // ✅ Update Button Icon & Save State
+    if (chatbotContainer.classList.contains("chat-hidden")) {
+      toggleButton.textContent = "➕";
+      localStorage.setItem("chatHidden", "true");
+    } else {
+      toggleButton.textContent = "➖";
+      localStorage.setItem("chatHidden", "false");
+    }
+  });
+});

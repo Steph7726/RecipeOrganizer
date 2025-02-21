@@ -1199,13 +1199,17 @@ async function getRecipes() {
     const data = doc.data();
     const item = document.createElement("li");
     item.innerHTML = `
+    <div class ="recipe-text">
       <strong>${data.name}</strong> (${data.category})<br>
       Ingredients: ${data.ingredients.join(", ")}
+    </div>
+    <div class="recipe-buttons">
       <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
       <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
       <button onclick="toggleFavorite('${doc.id}')">⭐ ${
       data.favorite ? "Unfavorite" : "Favorite"
     }</button>
+    </div>
     `;
     list.appendChild(item);
   });

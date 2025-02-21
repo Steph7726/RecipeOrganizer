@@ -91,10 +91,15 @@
 
       <!-- ✅ Chatbot UI -->
       <div id="chatbot-container">
-        <h2>Chatbot</h2>
-        <div id="chat-history"></div>
-        <input type="text" id="chat-input" placeholder="Ask the bot..." />
-        <button id="send-btn">Send</button>
+        <div id="chatbot-header">
+          <span>Chatbot</span>
+          <button id="toggle-chatbot">➖</button>
+        </div>
+        <div id="chat-window">
+          <div id="chat-history"></div>
+          <input type="text" id="chat-input" placeholder="Ask the bot..." />
+          <button id="send-btn">Send</button>
+        </div>
       </div>
     </main>
 
