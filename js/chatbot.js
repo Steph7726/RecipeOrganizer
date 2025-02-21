@@ -219,7 +219,7 @@ export async function getApiKey() {
   }
 }
 
-// ✅ Ask Chatbot (Hybrid AI: App-Specific + General)
+// ✅ Ask Chatbot (Fixed AI Mode)
 export async function askChatBot(request) {
   if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
@@ -229,47 +229,32 @@ export async function askChatBot(request) {
   try {
     appendMessage(`🧑‍💻 You: ${request}`);
 
-    // ✅ Provide App-Specific Context
-    const systemMessage = `
-    You are an AI assistant for the "Recipe Organizer" web app.
-    This app allows users to:
+    // **Prepend context instructions instead of using system messages**
+    const formattedRequest = `
+    This is a chatbot for a **Recipe Organizer app**.
+    The app allows users to:
     - **Add, edit, and delete recipes** in Firebase.
     - **Filter recipes by category or ingredients.**
     - **Mark recipes as favorites.**
 
-    Your responses should be **clear, concise, and app-focused** when applicable.
-
-    If a user asks about the app, give specific instructions:
-    - "How do I add a recipe?" → "Enter the name, category, and ingredients, then click 'Add Recipe'."
-    - "How do I delete a recipe?" → "Find your recipe in the list and click the ❌ Delete button."
-    - "Can I favorite a recipe?" → "Yes! Click the ⭐ Favorite button next to the recipe."
+    Answer as clearly as possible. If the user asks:
+    - "How do I add a recipe?" → Reply: "Click 'Add Recipe', enter the details, then click 'Save'."
+    - "How do I delete a recipe?" → Reply: "Find your recipe in the list and click the ❌ Delete button."
+    - "How do I favorite a recipe?" → Reply: "Click the ⭐ Favorite button next to the recipe."
     - "How do I edit a recipe?" → "Find the recipe you want to edit and click the ✏️Edit button."
 
-    However, if the user asks about **a general topic (e.g., history, science, jokes, or personal advice)**, switch to **regular AI mode** and provide a helpful response.
+    If the user's question is **not related to recipes**, answer normally as a general AI chatbot.
+
+    **User's question:** ${request}
     `;
 
     const result = await model.generateContent({
-      contents: [
-        { role: "system", parts: [{ text: systemMessage }] }, // AI System Instructions
-        { role: "user", parts: [{ text: request }] }, // User's Question
-      ],
+      contents: [{ role: "user", parts: [{ text: formattedRequest }] }],
     });
 
     console.log("🟡 AI Full Response:", result);
 
-    let aiResponse = "";
-
-    if (
-      result &&
-      result.response &&
-      result.response.candidates &&
-      result.response.candidates.length > 0
-    ) {
-      aiResponse =
-        result.response.candidates[0]?.content?.parts?.[0]?.text?.trim();
-    } else if (result && result.candidates && result.candidates.length > 0) {
-      aiResponse = result.candidates[0]?.content?.parts?.[0]?.text?.trim();
-    }
+    let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiResponse || aiResponse.length < 5) {
       console.warn("⚠️ AI did not generate a valid response.");
