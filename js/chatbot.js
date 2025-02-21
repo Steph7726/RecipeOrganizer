@@ -219,7 +219,7 @@ export async function getApiKey() {
   }
 }
 
-// ✅ Ask Chatbot (Fixed AI Mode)
+// ✅ Process User Input for AI
 export async function askChatBot(request) {
   if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
@@ -229,23 +229,27 @@ export async function askChatBot(request) {
   try {
     appendMessage(`🧑‍💻 You: ${request}`);
 
-    // **Prepend context instructions instead of using system messages**
-    const formattedRequest = `
-    This is a chatbot for a **Recipe Organizer app**. 
-    - Users can add, edit, delete, and filter recipes. 
-    - If a user asks about recipes, give **specific steps**. 
-    - If it's a general question, respond normally.
-
-    **User's question:** ${request}
-    `;
-
     const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: formattedRequest }] }],
+      contents: [{ role: "user", parts: [{ text: request }] }],
     });
 
     console.log("🟡 AI Full Response:", result);
 
-    let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    // ✅ Extract AI response correctly
+    let aiResponse = "";
+
+    // New logic to properly extract response
+    if (
+      result &&
+      result.response &&
+      result.response.candidates &&
+      result.response.candidates.length > 0
+    ) {
+      aiResponse =
+        result.response.candidates[0]?.content?.parts?.[0]?.text?.trim();
+    } else if (result && result.candidates && result.candidates.length > 0) {
+      aiResponse = result.candidates[0]?.content?.parts?.[0]?.text?.trim();
+    }
 
     if (!aiResponse || aiResponse.length < 5) {
       console.warn("⚠️ AI did not generate a valid response.");
@@ -259,19 +263,7 @@ export async function askChatBot(request) {
   }
 }
 
-// ✅ Append Chat Messages
-function appendMessage(message) {
-  const chatHistory = document.getElementById("chat-history");
-  if (!chatHistory) return;
-
-  const historyItem = document.createElement("div");
-  historyItem.textContent = message;
-  historyItem.className = "history";
-  chatHistory.appendChild(historyItem);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-// ✅ Handle Chat Input
+// ✅ Handle Chat Input (Send Button)
 export function handleChatInput() {
   const chatInput = document.getElementById("chat-input");
   if (!chatInput) return;
@@ -285,32 +277,21 @@ export function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ Event Listener for Chat Input
-document.getElementById("send-btn")?.addEventListener("click", handleChatInput);
+// ✅ Display Chatbot Messages
+function appendMessage(message) {
+  const chatHistory = document.getElementById("chat-history");
+  if (!chatHistory) return;
 
-// Chatbot minimimize/maximize
+  const historyItem = document.createElement("div");
+  historyItem.textContent = message;
+  historyItem.className = "history";
+  chatHistory.appendChild(historyItem);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+// ✅ Add Event Listeners
 document.addEventListener("DOMContentLoaded", () => {
-  const chatbotContainer = document.getElementById("chatbot-container");
-  const toggleButton = document.getElementById("toggle-chatbot");
-
-  // ✅ Load Chatbot State from LocalStorage
-  const isChatHidden = localStorage.getItem("chatHidden") === "true";
-  if (isChatHidden) {
-    chatbotContainer.classList.add("chat-hidden");
-    toggleButton.textContent = "➕"; // Show plus sign when minimized
-  }
-
-  // ✅ Toggle Chatbot Visibility on Click
-  toggleButton.addEventListener("click", () => {
-    chatbotContainer.classList.toggle("chat-hidden");
-
-    // ✅ Update Button Icon & Save State
-    if (chatbotContainer.classList.contains("chat-hidden")) {
-      toggleButton.textContent = "➕";
-      localStorage.setItem("chatHidden", "true");
-    } else {
-      toggleButton.textContent = "➖";
-      localStorage.setItem("chatHidden", "false");
-    }
-  });
+  document
+    .getElementById("send-btn")
+    ?.addEventListener("click", handleChatInput);
 });
