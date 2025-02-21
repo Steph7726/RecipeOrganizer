@@ -1198,6 +1198,7 @@ async function getRecipes() {
   snapshot.forEach((doc) => {
     const data = doc.data();
     const item = document.createElement("li");
+    item.classList.add("recipe-card");
     item.innerHTML = `
     <div class ="recipe-text">
       <strong>${data.name}</strong> (${data.category})<br>
