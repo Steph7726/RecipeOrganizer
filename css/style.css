@@ -172,8 +172,8 @@ input[type="text"] {
 
 /* Input Focus for Accessibility */
 input:focus {
-  outline: 3px solid #f4a261;
-  box-shadow: 0 0 5px rgba(244, 162, 97, 0.6);
+  outline: 3px solid #f4d8a4;
+  box-shadow: 0 0 5px rgba(244, 216, 164, 0.6);
   transition: outline 0.2s;
 }
 
@@ -183,7 +183,7 @@ input:focus {
 button {
   padding: 10px 15px;
   font-size: 14px;
-  background-color: #f4a261; /* Soft amber */
+  background-color: #f4d8a4; /* Slightly darker than #fbe6c2 */
   color: white;
   border: none;
   border-radius: 5px;
@@ -192,13 +192,13 @@ button {
 }
 
 button:hover {
-  background-color: #ea8b47;
+  background-color: #eac793;
   transform: translateY(-2px);
 }
 
 button:focus {
-  outline: 3px solid #f4a261;
-  box-shadow: 0 0 5px rgba(244, 162, 97, 0.6);
+  outline: 3px solid #f4d8a4;
+  box-shadow: 0 0 5px rgba(244, 216, 164, 0.6);
 }
 
 /* ✅ Sign-in and Sign-out Buttons */
@@ -216,13 +216,13 @@ button:focus {
 
 #signOutBttn {
   padding: 10px 20px;
-  background-color: #e87e6b;
+  background-color: #e93d1e;
   color: white;
   border-radius: 5px;
 }
 
 #signOutBttn:hover {
-  background-color: #d66c5c;
+  background-color: #ce341c;
 }
 
 /* ==============================
@@ -297,7 +297,7 @@ li {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #fce8d5; /* Soft cream */
+  background: white; /* Soft cream */
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -360,17 +360,17 @@ li {
   font-size: 14px;
 }
 
-/* ✅ Send Button (Lighter Amber) */
+/* ✅ Send Button (Updated to Match UI) */
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
-  background-color: #f4a261;
+  background-color: #f4d8a4;
   color: white;
   border-radius: 5px;
 }
 
 #send-btn:hover {
-  background-color: #ea8b47;
+  background-color: #eac793;
 }
 
 /* ==============================
