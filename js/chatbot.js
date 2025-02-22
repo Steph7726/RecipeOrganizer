@@ -1627,20 +1627,17 @@ export function handleChatInput() {
   chatInput.value = "";
 }
 
-// ✅ Event Listeners
+// ✅ Event Listeners (Fix for Enter Key)
 document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("send-btn")
-    ?.addEventListener("click", handleChatInput);
-
-  // ✅ Allow Enter Key to Send Chat Message
-  document
-    .getElementById("chat-input")
-    ?.addEventListener("keypress", (event) => {
+  const chatInput = document.getElementById("chat-input");
+  if (chatInput) {
+    chatInput.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
-        document.getElementById("send-btn")?.click();
+        event.preventDefault(); // ✅ Prevent form submission issues
+        handleChatInput();
       }
     });
+  }
 
   // ✅ Fix Minimize/Maximize Toggle (White Symbols & Larger Size)
   const chatbotContainer = document.getElementById("chatbot-container");
@@ -1673,5 +1670,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ✅ Ensure White Color Stays After Click
     toggleButton.style.color = "#ffffff";
+    toggleButton.style.fontSize = "28px";
   });
 });
