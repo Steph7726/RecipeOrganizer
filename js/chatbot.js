@@ -331,18 +331,7 @@ document
   });*/
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {
-  getDoc,
-  doc,
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  deleteDoc,
-  updateDoc,
-  getFirestore,
-} from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore";
 import { db } from "./firebase.js";
 
 // ✅ Global Variables
@@ -380,13 +369,13 @@ export async function askChatBot(request) {
     appendMessage(`🧑‍💻 You: ${request}`);
 
     const formattedRequest = `
-  This is a chatbot for a **Recipe Organizer app**. 
-  - Users can add, edit, delete, and filter recipes. 
-  - If a user asks about recipes, give **specific steps**. 
-  - If it's a general question, respond normally.
-  
-  **User's question:** ${request}
-  `;
+This is a chatbot for a **Recipe Organizer app**. 
+- Users can add, edit, delete, and filter recipes. 
+- If a user asks about recipes, give **specific steps**. 
+- If it's a general question, respond normally.
+
+**User's question:** ${request}
+`;
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: formattedRequest }] }],
@@ -408,6 +397,20 @@ export async function askChatBot(request) {
   }
 }
 
+// ✅ Handle Chat Input (Send Button)
+export function handleChatInput() {
+  const chatInput = document.getElementById("chat-input");
+  if (!chatInput) return;
+
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    askChatBot(prompt);
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
+}
+
 // ✅ Display Chatbot Messages
 function appendMessage(message) {
   const chatHistory = document.getElementById("chat-history");
@@ -420,59 +423,43 @@ function appendMessage(message) {
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-// ✅ Setup Event Listeners
+// ✅ Add Event Listeners
 document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("send-btn")
     ?.addEventListener("click", handleChatInput);
-  document
-    .getElementById("addRecipeBtn")
-    ?.addEventListener("click", addRecipeHandler);
-  document
-    .getElementById("filterBtn")
-    ?.addEventListener("click", filterRecipes);
-  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
-
-  // ✅ Allow "Enter" key for multiple actions
-  ["recipeInput", "categoryInput", "ingredientsInput"].forEach((id) => {
-    document.getElementById(id)?.addEventListener("keypress", (event) => {
-      if (event.key === "Enter")
-        document.getElementById("addRecipeBtn")?.click();
-    });
-  });
-
-  ["ingredientFilter", "categoryFilter"].forEach((id) => {
-    document.getElementById(id)?.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") document.getElementById("filterBtn")?.click();
-    });
-  });
-
-  document
-    .getElementById("chat-input")
-    ?.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") document.getElementById("send-btn")?.click();
-    });
-
-  setupChatbotToggle();
 });
 
-// ✅ Chatbot Minimize/Maximize Toggle
-function setupChatbotToggle() {
-  const chatbotContainer = document.getElementById("chatbot-container");
-  const toggleButton = document.getElementById("toggle-chatbot");
+// ✅ Allow "Enter" key to submit chat input
+document.getElementById("chat-input")?.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    document.getElementById("send-btn")?.click();
+  }
+});
 
-  const isChatHidden = localStorage.getItem("chatHidden") === "true";
-  chatbotContainer.classList.toggle("chat-hidden", isChatHidden);
-  toggleButton.textContent = isChatHidden ? "+" : "-";
-  toggleButton.style.color = "#ffffff";
-
-  toggleButton.addEventListener("click", () => {
-    chatbotContainer.classList.toggle("chat-hidden");
-    const isHidden = chatbotContainer.classList.contains("chat-hidden");
-    toggleButton.textContent = isHidden ? "+" : "-";
-    localStorage.setItem("chatHidden", isHidden);
-    toggleButton.style.color = "#ffffff";
+// ✅ Allow "Enter" key to submit adding recipes
+document
+  .getElementById("addRecipeBtn")
+  ?.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      document.getElementById("addRecipeBtn")?.click();
+    }
   });
+
+// ✅ Allow "Enter" key to submit filters
+document
+  .getElementById("ingredientFilter")
+  ?.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      document.getElementById("filterBtn")?.click();
+    }
+  });
+
+// ✅ Reset Recipe Input Fields After Adding
+function resetRecipeInputs() {
+  document.getElementById("recipeInput").value = "";
+  document.getElementById("categoryInput").value = "";
+  document.getElementById("ingredientsInput").value = "";
 }
 
 // ✅ Show Feedback Messages
@@ -498,70 +485,32 @@ function showFeedbackMessage(message, type = "success") {
   }, 2000);
 }
 
-// ✅ Add Recipe Handler
-function addRecipeHandler() {
-  const name = document.getElementById("recipeInput").value.trim();
-  const category = document.getElementById("categoryInput").value.trim();
-  const ingredients = document
-    .getElementById("ingredientsInput")
-    .value.trim()
-    .split(",");
+// ✅ Chatbot Minimize/Maximize Toggle
+document.addEventListener("DOMContentLoaded", () => {
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const toggleButton = document.getElementById("toggle-chatbot");
 
-  if (name && category && ingredients.length > 0) {
-    addRecipe(name, category, ingredients);
+  // ✅ Load Chatbot State from LocalStorage
+  const isChatHidden = localStorage.getItem("chatHidden") === "true";
+  if (isChatHidden) {
+    chatbotContainer.classList.add("chat-hidden");
+    toggleButton.textContent = "+";
   } else {
-    showFeedbackMessage("🚨 Please fill out all fields.", "error");
+    toggleButton.textContent = "-";
   }
-}
+  toggleButton.style.color = "#ffffff";
 
-// ✅ Add Recipe to Firestore
-async function addRecipe(name, category, ingredients) {
-  const email = JSON.parse(localStorage.getItem("email"));
-  if (!email) {
-    showFeedbackMessage("You must be logged in to add recipes!", "error");
-    return;
-  }
+  // ✅ Toggle Chatbot Visibility on Click
+  toggleButton.addEventListener("click", () => {
+    chatbotContainer.classList.toggle("chat-hidden");
 
-  try {
-    await addDoc(collection(db, "recipes"), {
-      name,
-      category,
-      ingredients,
-      email,
-      favorite: false,
-      created_at: new Date(),
-    });
-
-    getRecipes();
-    showFeedbackMessage("✅ Recipe Added!");
-
-    // ✅ Reset input fields
-    document.getElementById("recipeInput").value = "";
-    document.getElementById("categoryInput").value = "";
-    document.getElementById("ingredientsInput").value = "";
-  } catch (error) {
-    console.error("🚨 Error adding recipe:", error);
-    showFeedbackMessage("🚨 Error adding recipe!", "error");
-  }
-}
-
-// ✅ Filter Recipes with Reset Button
-function filterRecipes() {
-  getRecipes();
-
-  let resetButton = document.getElementById("resetFilterBtn");
-  if (!resetButton) {
-    resetButton = document.createElement("button");
-    resetButton.id = "resetFilterBtn";
-    resetButton.textContent = "Reset Filters";
-    resetButton.addEventListener("click", () => {
-      document.getElementById("ingredientFilter").value = "";
-      document.getElementById("categoryFilter").value = "";
-      getRecipes();
-    });
-
-    document.querySelector(".container").appendChild(resetButton);
-  }
-
-  showFeedbackMessage("✅ Filters Applied!");
-}
+    if (chatbotContainer.classList.contains("chat-hidden")) {
+      toggleButton.textContent = "+";
+      localStorage.setItem("chatHidden", "true");
+    } else {
+      toggleButton.textContent = "-";
+      localStorage.setItem("chatHidden", "false");
+    }
+    toggleButton.style.color = "#ffffff";
+  });
+});
