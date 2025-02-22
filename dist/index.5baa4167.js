@@ -612,7 +612,6 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "db", ()=>db);
 parcelHelpers.export(exports, "auth", ()=>auth);
-parcelHelpers.export(exports, "provider", ()=>provider);
 var _app = require("firebase/app");
 var _firestore = require("firebase/firestore");
 var _auth = require("firebase/auth");
@@ -629,7 +628,6 @@ const firebaseConfig = {
 const app = (0, _app.initializeApp)(firebaseConfig);
 const db = (0, _firestore.getFirestore)(app);
 const auth = (0, _auth.getAuth)(app);
-const provider = new GoogleAuthProvider();
 
 },{"firebase/app":"aM3Fo","firebase/firestore":"8A4BC","firebase/auth":"79vzg","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aM3Fo":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -39160,6 +39158,9 @@ exports.default = {
 var _firebase = require("./firebase");
 var _auth = require("firebase/auth");
 const provider = new (0, _auth.GoogleAuthProvider)();
+provider.setCustomParameters({
+    prompt: "select_account"
+});
 document.addEventListener("DOMContentLoaded", ()=>{
     const signInBttn = document.getElementById("signIn");
     if (!signInBttn) {
@@ -39321,6 +39322,10 @@ async function getRecipes() {
     const q = (0, _firestore.query)((0, _firestore.collection)((0, _firebaseJs.db), "recipes"), (0, _firestore.where)("email", "==", email));
     const snapshot = await (0, _firestore.getDocs)(q);
     const list = document.getElementById("recipeList");
+    if (!list) {
+        console.error("recipeList element not found");
+        return;
+    }
     list.innerHTML = "";
     snapshot.forEach((doc)=>{
         const data = doc.data();

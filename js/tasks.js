@@ -188,6 +188,10 @@ async function getRecipes() {
   const q = query(collection(db, "recipes"), where("email", "==", email));
   const snapshot = await getDocs(q);
   const list = document.getElementById("recipeList");
+  if (!list) {
+    console.error("recipeList element not found");
+    return;
+  }
   list.innerHTML = "";
 
   snapshot.forEach((doc) => {
