@@ -134,7 +134,7 @@ h1 {
   background-color: #e87e6b; /* Warm salmon */
   color: white;
   padding: 15px;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
 }
 
@@ -183,8 +183,9 @@ input:focus {
 button {
   padding: 10px 15px;
   font-size: 14px;
-  background-color: #f4d8a4; /* Slightly darker than #fbe6c2 */
-  color: white;
+  background-color: #eaa74e;
+  color: #5a3e1b;
+  font-weight: bold;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -192,12 +193,12 @@ button {
 }
 
 button:hover {
-  background-color: #eac793;
+  background-color: #ea9e3a;
   transform: translateY(-2px);
 }
 
 button:focus {
-  outline: 3px solid #f4d8a4;
+  outline: 3px solid #f0c48a;
   box-shadow: 0 0 5px rgba(244, 216, 164, 0.6);
 }
 
@@ -216,13 +217,13 @@ button:focus {
 
 #signOutBttn {
   padding: 10px 20px;
-  background-color: #e93d1e;
+  background-color: #e72c25;
   color: white;
   border-radius: 5px;
 }
 
 #signOutBttn:hover {
-  background-color: #ce341c;
+  background-color: #d92b10;
 }
 
 /* ==============================
@@ -261,12 +262,12 @@ li {
 
 /* ✅ Lighter Buttons for Delete, Edit, Favorite */
 .delete-btn {
-  background-color: #f7b7a3; /* Muted Rose */
+  background-color: #eaa74e; /* Muted Rose */
   color: #721c24;
 }
 
 .delete-btn:hover {
-  background-color: #f4a399;
+  background-color: #ea9e3a;
 }
 
 .edit-btn {
@@ -280,7 +281,7 @@ li {
 
 .favorite-btn {
   background-color: #f6d365; /* Golden Honey */
-  color: #856404;
+  color: #5a3e1b;
 }
 
 .favorite-btn:hover {
@@ -364,13 +365,13 @@ li {
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
-  background-color: #f4d8a4;
+  background-color: #eaa74e;
   color: white;
   border-radius: 5px;
 }
 
 #send-btn:hover {
-  background-color: #eac793;
+  background-color: #ea9e3a;
 }
 
 /* ==============================
