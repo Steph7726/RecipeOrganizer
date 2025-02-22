@@ -1473,3 +1473,47 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("send-btn")
     ?.addEventListener("click", handleChatInput);
 });
+
+// ✅ Allow Enter Key to Send Chat Message
+document.getElementById("chat-input")?.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    document.getElementById("send-btn")?.click();
+  }
+
+  // ✅ Allow Enter Key to Send Chat Message
+  document
+    .getElementById("chat-input")
+    ?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("send-btn")?.click();
+      }
+    });
+
+  // ✅ Fix Minimize/Maximize Toggle (White Symbols)
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const toggleButton = document.getElementById("toggle-chatbot");
+
+  // ✅ Load Chatbot State from LocalStorage
+  const isChatHidden = localStorage.getItem("chatHidden") === "true";
+  if (isChatHidden) {
+    chatbotContainer.classList.add("chat-hidden");
+    toggleButton.textContent = "+";
+  } else {
+    toggleButton.textContent = "-";
+  }
+  toggleButton.style.color = "#ffffff"; // ✅ Ensure Symbol is White
+
+  // ✅ Toggle Chatbot Visibility
+  toggleButton.addEventListener("click", () => {
+    chatbotContainer.classList.toggle("chat-hidden");
+
+    if (chatbotContainer.classList.contains("chat-hidden")) {
+      toggleButton.textContent = "+";
+      localStorage.setItem("chatHidden", "true");
+    } else {
+      toggleButton.textContent = "-";
+      localStorage.setItem("chatHidden", "false");
+    }
+    toggleButton.style.color = "#ffffff"; // ✅ Ensure Symbol Stays White
+  });
+});

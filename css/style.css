@@ -263,7 +263,7 @@ li {
 /* ✅ Lighter Buttons for Delete, Edit, Favorite */
 .delete-btn {
   background-color: #eaa74e; /* Muted Rose */
-  color: #721c24;
+  color: #ffffff;
 }
 
 .delete-btn:hover {
@@ -272,7 +272,7 @@ li {
 
 .edit-btn {
   background-color: #eaa74e; /* Light Blue-Gray */
-  color: #0c5460;
+  color: #ffffff;
 }
 
 .edit-btn:hover {
@@ -281,7 +281,7 @@ li {
 
 .favorite-btn {
   background-color: #eaa74e; /* Golden Honey */
-  color: #5a3e1b;
+  color: #ffffff;
 }
 
 .favorite-btn:hover {
@@ -325,7 +325,7 @@ li {
   border: none !important;
   color: white !important;
   font-weight: bold !important;
-  font-size: 20px !important;
+  font-size: 28px !important;
   cursor: pointer;
   position: absolute;
   top: 5px;
@@ -335,6 +335,7 @@ li {
 
 #toggle-chatbot:hover {
   color: #ffffff !important;
+  transform: scale(1.2);
 }
 
 /* Chatbot Window */
