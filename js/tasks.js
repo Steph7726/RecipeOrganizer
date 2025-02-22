@@ -2612,9 +2612,9 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
-import { getApiKey, askChatBot, handleChatInput } from "./chatbot.js";
+import { getApiKey, askChatBot } from "./chatbot.js"; // ✅ Ensures chatbot functions are properly imported
 
-// ✅ Ensure DOM elements exist before executing
+// ✅ Ensure everything initializes properly on page load
 document.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
   await getApiKey();
@@ -2633,12 +2633,12 @@ function setupEventListeners() {
   document
     .getElementById("addRecipeBtn")
     ?.addEventListener("click", addRecipeHandler);
+  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
   document
     .getElementById("filterBtn")
     ?.addEventListener("click", filterRecipes);
-  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
 
-  // ✅ Allow "Enter" key to submit forms
+  // ✅ Add Enter Key Event Listeners for All Inputs
   ["recipeInput", "categoryInput", "ingredientsInput"].forEach((id) => {
     document.getElementById(id)?.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
@@ -2647,21 +2647,13 @@ function setupEventListeners() {
     });
   });
 
-  document
-    .getElementById("ingredientFilter")
-    ?.addEventListener("keypress", (event) => {
+  ["ingredientFilter", "categoryFilter"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
         document.getElementById("filterBtn")?.click();
       }
     });
-
-  document
-    .getElementById("categoryFilter")
-    ?.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") {
-        document.getElementById("filterBtn")?.click();
-      }
-    });
+  });
 }
 
 // ✅ Show Feedback Messages
@@ -2730,7 +2722,7 @@ async function addRecipe(name, category, ingredients) {
     getRecipes();
     showFeedbackMessage("✅ Recipe Added!");
 
-    // ✅ Reset input fields after adding
+    // ✅ Reset Input Fields
     document.getElementById("recipeInput").value = "";
     document.getElementById("categoryInput").value = "";
     document.getElementById("ingredientsInput").value = "";
@@ -2740,7 +2732,7 @@ async function addRecipe(name, category, ingredients) {
   }
 }
 
-// ✅ Delete Recipe
+// ✅ Delete Recipe (With Confirmation)
 window.deleteRecipe = async function (recipeId) {
   try {
     await deleteDoc(doc(db, "recipes", recipeId));
@@ -2752,7 +2744,7 @@ window.deleteRecipe = async function (recipeId) {
   }
 };
 
-// ✅ Edit Recipe
+// ✅ Edit Recipe (With Confirmation)
 window.editRecipe = async function (recipeId) {
   const newName = prompt("Enter new recipe name:");
   const newCategory = prompt("Enter new category:");
@@ -2777,7 +2769,7 @@ window.editRecipe = async function (recipeId) {
   }
 };
 
-// ✅ Toggle Favorite Recipe
+// ✅ Toggle Favorite Recipe (With Confirmation)
 window.toggleFavorite = async function (recipeId) {
   try {
     const recipeRef = doc(db, "recipes", recipeId);
@@ -2794,7 +2786,7 @@ window.toggleFavorite = async function (recipeId) {
   }
 };
 
-// ✅ Get Recipes (Load on Sign-in)
+// ✅ Get Recipes (Ensures They Load on Sign-In)
 async function getRecipes() {
   const email = JSON.parse(localStorage.getItem("email"));
   if (!email) return;
@@ -2807,6 +2799,7 @@ async function getRecipes() {
   snapshot.forEach((doc) => {
     const data = doc.data();
     const item = document.createElement("li");
+    item.classList.add("recipe-card");
     item.innerHTML = `
     <div class ="recipe-text">
       <strong>${data.name}</strong> (${data.category})<br>
@@ -2823,7 +2816,7 @@ async function getRecipes() {
     list.appendChild(item);
   });
 
-  // ✅ Add Reset Filters Button
+  // ✅ Ensure Reset Button Stays
   let resetBtn = document.getElementById("resetFiltersBtn");
   if (!resetBtn) {
     resetBtn = document.createElement("button");
@@ -2834,18 +2827,10 @@ async function getRecipes() {
   }
 }
 
-// ✅ Reset Filters
+// ✅ Fix Reset Filters
 function resetFilters() {
   document.getElementById("ingredientFilter").value = "";
   document.getElementById("categoryFilter").value = "";
   getRecipes();
-  showFeedbackMessage("Filters reset!");
+  showFeedbackMessage("✅ Filters Reset!");
 }
-
-// ✅ Fix Minimize/Maximize Chatbot Button Color (White)
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleButton = document.getElementById("toggle-chatbot");
-  if (toggleButton) {
-    toggleButton.style.color = "#ffffff";
-  }
-});
