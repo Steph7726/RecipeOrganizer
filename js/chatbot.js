@@ -1014,7 +1014,6 @@ import { db } from "./firebase.js";
 // ✅ Global Variables
 let genAI;
 let model;
-let apiKeyLoaded = false;
 
 // ✅ Fetch Google Gemini API Key from Firestore
 export async function getApiKey() {
@@ -1022,20 +1021,17 @@ export async function getApiKey() {
     const snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
     if (snapshot.exists()) {
       const apiKey = snapshot.data().key;
-      console.log("✅ Google Gemini API Key Loaded:", apiKey);
       genAI = new GoogleGenerativeAI(apiKey);
       model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      apiKeyLoaded = true;
     } else {
       appendMessage("🚨 No Google Gemini API key found in Firestore");
     }
   } catch (error) {
-    console.error("🚨 Error fetching API key:", error.message);
     appendMessage("🚨 Chatbot error: API Key issue.");
   }
 }
 
-// ✅ Process User Input for AI
+// ✅ Ask Chatbot (Fixed AI Mode)
 export async function askChatBot(request) {
   if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
@@ -1045,6 +1041,7 @@ export async function askChatBot(request) {
   try {
     appendMessage(`🧑‍💻 You: ${request}`);
 
+    // ✅ **Prepend context instructions**
     const formattedRequest = `
 This is a chatbot for a **Recipe Organizer app**. 
 - Users can add, edit, delete, and filter recipes. 
@@ -1054,24 +1051,38 @@ This is a chatbot for a **Recipe Organizer app**.
 **User's question:** ${request}
 `;
 
+    // ✅ Send request to AI model
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: formattedRequest }] }],
     });
 
     console.log("🟡 AI Full Response:", result);
 
+    // ✅ Extract AI response
     let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiResponse || aiResponse.length < 5) {
-      console.warn("⚠️ AI did not generate a valid response.");
       aiResponse = "🚫 AI could not generate a meaningful response.";
     }
 
     appendMessage(`🤖 AI: ${aiResponse}`);
   } catch (error) {
-    console.error("🚨 Chatbot Error:", error);
     appendMessage(`🚨 Chatbot Error: ${error.message || "Could not reach AI"}`);
   }
+}
+
+// ✅ Handle Chat Input (For Tasks.js)
+export function handleChatInput() {
+  const chatInput = document.getElementById("chat-input");
+  if (!chatInput) return;
+
+  const prompt = chatInput.value.trim();
+  if (prompt) {
+    askChatBot(prompt);
+  } else {
+    appendMessage("⚠️ Please enter a prompt.");
+  }
+  chatInput.value = "";
 }
 
 // ✅ Display Chatbot Messages
@@ -1086,16 +1097,23 @@ function appendMessage(message) {
   chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-// ✅ Handle Chat Input (Send Button)
-export function handleChatInput() {
-  const chatInput = document.getElementById("chat-input");
-  if (!chatInput) return;
+// ✅ Chatbot Minimize/Maximize Toggle (Ensuring White Button)
+document.addEventListener("DOMContentLoaded", () => {
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const toggleButton = document.getElementById("toggle-chatbot");
 
-  const prompt = chatInput.value.trim();
-  if (prompt) {
-    askChatBot(prompt);
-  } else {
-    appendMessage("⚠️ Please enter a prompt.");
-  }
-  chatInput.value = "";
-}
+  if (!chatbotContainer || !toggleButton) return;
+
+  const isChatHidden = localStorage.getItem("chatHidden") === "true";
+  chatbotContainer.classList.toggle("chat-hidden", isChatHidden);
+  toggleButton.textContent = isChatHidden ? "+" : "-";
+  toggleButton.style.color = "#ffffff";
+
+  toggleButton.addEventListener("click", () => {
+    chatbotContainer.classList.toggle("chat-hidden");
+    const hidden = chatbotContainer.classList.contains("chat-hidden");
+    toggleButton.textContent = hidden ? "+" : "-";
+    toggleButton.style.color = "#ffffff";
+    localStorage.setItem("chatHidden", hidden.toString());
+  });
+});
