@@ -321,11 +321,11 @@ li {
 
 /* ✅ Minimize Button (White for Visibility) */
 #toggle-chatbot {
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
   color: white !important;
-  font-weight: bold;
-  font-size: 20px;
+  font-weight: bold !important;
+  font-size: 20px !important;
   cursor: pointer;
   position: absolute;
   top: 5px;
@@ -374,6 +374,43 @@ li {
 
 #send-btn:hover {
   background-color: #ea9e3a;
+}
+
+/* ✅ Feedback Message Styles */
+#feedback-message {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 150, 0, 0.9); /* Success Green */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  display: none;
+  text-align: center;
+  z-index: 1000;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.feedback-error {
+  background-color: rgba(200, 0, 0, 0.9); /* Error Red */
+}
+
+.feedback-highlight {
+  animation: highlight 1.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #fbe6c2;
+  }
+  50% {
+    background-color: #fcd9a1;
+  }
+  100% {
+    background-color: #fff;
+  }
 }
 
 /* ==============================
