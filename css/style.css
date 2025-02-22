@@ -184,7 +184,7 @@ button {
   padding: 10px 15px;
   font-size: 14px;
   background-color: #eaa74e;
-  color: #5a3e1b;
+  color: white;
   font-weight: bold;
   border: none;
   border-radius: 5px;
@@ -323,16 +323,18 @@ li {
 #toggle-chatbot {
   background: none;
   border: none;
-  color: white;
+  color: white !important;
+  font-weight: bold;
   font-size: 20px;
   cursor: pointer;
   position: absolute;
   top: 5px;
   right: 5px;
+  transition: color 0.2s ease-in-out;
 }
 
 #toggle-chatbot:hover {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 /* Chatbot Window */

@@ -478,8 +478,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (isChatHidden) {
     chatbotContainer.classList.add("chat-hidden");
     toggleButton.textContent = "➕"; // Show "+" when minimized
+    toggleButton.style.color = "white";
   } else {
     toggleButton.textContent = "➖"; // Show "-" when open
+    toggleButton.style.color = "white";
   }
 
   // ✅ Toggle Chatbot Visibility on Click
@@ -494,5 +496,6 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleButton.textContent = "➖"; // "-" when open
       localStorage.setItem("chatHidden", "false");
     }
+    toggleButton.style.color = "white";
   });
 });
