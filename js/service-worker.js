@@ -1,4 +1,3 @@
-// js/service-worker.js
 const CACHE_NAME = "recipe-organizer-cache-v4";
 const FILES_TO_CACHE = [
   "./html/index.html",
@@ -8,7 +7,6 @@ const FILES_TO_CACHE = [
   "./manifest.json",
 ];
 
-// ✅ INSTALL: Cache all necessary files
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,10 +14,9 @@ self.addEventListener("install", (event) => {
       return cache.addAll(FILES_TO_CACHE);
     })
   );
-  self.skipWaiting(); // Activate immediately after install
+  self.skipWaiting();
 });
 
-// ✅ ACTIVATE: Clear old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keyList) =>
@@ -33,10 +30,9 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-  self.clients.claim(); // Become active immediately
+  self.clients.claim();
 });
 
-// ✅ FETCH: Serve from cache or fetch from network
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {

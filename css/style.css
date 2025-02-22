@@ -1,122 +1,5 @@
-/*body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  background-color: #f4f4f4;
-}
+/* General Styles */
 
-h1 {
-  background-color: #0078d7;
-  color: white;
-  padding: 10px;
-}
-
-.container {
-  margin: 20px auto;
-  max-width: 500px;
-}
-
-input[type="text"] {
-  width: 80%;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  padding: 10px 15px;
-  background-color: #0078d7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #005bb5;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  background: white;
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: left;
-}
-
-.delete-btn {
-  background-color: red;
-  color: white;
-  padding: 5px;
-  border: none;
-  cursor: pointer;
-  float: right;
-}
-
-Chatbot UI Styles 
-#chatbot-container {
-  width: 320px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-#chat-history {
-  height: 220px;
-  overflow-y: auto;
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 10px;
-  padding: 5px;
-  font-size: 14px;
-}
-
-#chat-input {
-  width: calc(100% - 70px);
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-#send-btn {
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #0078d7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-#send-btn:hover {
-  background-color: #005bb5;
-}
-
-.history {
-  margin-bottom: 12px;
-  font-size: 13px;
-  padding: 5px;
-  border-radius: 4px;
-  background-color: #f1f1f1;
-}*/
-
-/* ==============================
-    🌟 General Styles
-============================== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -129,9 +12,8 @@ body {
   color: #333;
 }
 
-/* ✅ Updated Header Color */
 h1 {
-  background-color: #e87e6b; /* Warm salmon */
+  background-color: #e87e6b;
   color: white;
   padding: 15px;
   font-size: 30px;
@@ -140,7 +22,7 @@ h1 {
 
 header {
   padding: 10px 0;
-  background-color: #e87e6b; /* Matches chatbot header */
+  background-color: #e87e6b;
   color: white;
   font-size: 22px;
   font-weight: bold;
@@ -157,9 +39,8 @@ main {
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ==============================
-    🍽️ Form and Inputs
-============================== */
+/*Form and Inputs*/
+
 input[type="text"] {
   width: 100%;
   padding: 12px;
@@ -170,16 +51,14 @@ input[type="text"] {
   box-sizing: border-box;
 }
 
-/* Input Focus for Accessibility */
 input:focus {
   outline: 3px solid #f4d8a4;
   box-shadow: 0 0 5px rgba(244, 216, 164, 0.6);
   transition: outline 0.2s;
 }
 
-/* ==============================
-    🟢 Buttons (Balanced Colors)
-============================== */
+/* Buttons */
+
 button {
   padding: 10px 15px;
   font-size: 14px;
@@ -202,11 +81,10 @@ button:focus {
   box-shadow: 0 0 5px rgba(244, 216, 164, 0.6);
 }
 
-/* ✅ Sign-in and Sign-out Buttons */
 #signIn {
   padding: 12px 20px;
   font-size: 16px;
-  background-color: #6bbf59; /* Soft Green */
+  background-color: #6bbf59;
   color: white;
   border-radius: 5px;
 }
@@ -226,9 +104,8 @@ button:focus {
   background-color: #d92b10;
 }
 
-/* ==============================
-    🍴 Recipe List & Buttons
-============================== */
+/* Recipe List & Buttons */
+
 ul {
   list-style: none;
   padding: 0;
@@ -254,15 +131,13 @@ li {
   text-align: left;
 }
 
-/* ✅ Recipe Buttons Aligned */
 .recipe-buttons {
   display: flex;
   gap: 8px;
 }
 
-/* ✅ Lighter Buttons for Delete, Edit, Favorite */
 .delete-btn {
-  background-color: #eaa74e; /* Muted Rose */
+  background-color: #eaa74e;
   color: #ffffff;
 }
 
@@ -271,7 +146,7 @@ li {
 }
 
 .edit-btn {
-  background-color: #eaa74e; /* Light Blue-Gray */
+  background-color: #eaa74e;
   color: #ffffff;
 }
 
@@ -280,7 +155,7 @@ li {
 }
 
 .favorite-btn {
-  background-color: #eaa74e; /* Golden Honey */
+  background-color: #eaa74e;
   color: #ffffff;
 }
 
@@ -288,9 +163,8 @@ li {
   background-color: #ea9e3a;
 }
 
-/* ==============================
-    💬 Chatbot Styles
-============================== */
+/* Chatbot Styles */
+
 #chatbot-container {
   width: 320px;
   border: 1px solid #ccc;
@@ -298,7 +172,7 @@ li {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: white; /* Soft cream */
+  background: white;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -306,12 +180,11 @@ li {
   transition: max-height 0.3s ease-in-out;
 }
 
-/* ✅ Chatbot Header Matches App Header */
 #chatbot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #e87e6b; /* Matches App Header */
+  background: #e87e6b;
   color: white;
   padding: 10px;
   font-size: 16px;
@@ -319,7 +192,6 @@ li {
   border-radius: 6px 6px 0 0;
 }
 
-/* ✅ Minimize Button (White for Visibility) */
 #toggle-chatbot {
   background: none !important;
   border: none !important;
@@ -338,7 +210,6 @@ li {
   transform: scale(1.2);
 }
 
-/* Chatbot Window */
 #chat-window {
   display: flex;
   flex-direction: column;
@@ -348,7 +219,6 @@ li {
   transition: max-height 0.3s ease-in-out;
 }
 
-/* Hidden State */
 .chat-hidden #chat-window {
   max-height: 0;
   padding: 0;
@@ -364,7 +234,6 @@ li {
   font-size: 14px;
 }
 
-/* ✅ Send Button (Updated to Match UI) */
 #send-btn {
   padding: 8px 15px;
   font-size: 14px;
@@ -377,13 +246,12 @@ li {
   background-color: #ea9e3a;
 }
 
-/* ✅ Feedback Message Styles */
 #feedback-message {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 150, 0, 0.9); /* Success Green */
+  background-color: rgba(0, 150, 0, 0.9);
   color: white;
   padding: 12px 20px;
   border-radius: 5px;
@@ -395,7 +263,7 @@ li {
 }
 
 .feedback-error {
-  background-color: rgba(200, 0, 0, 0.9); /* Error Red */
+  background-color: rgba(200, 0, 0, 0.9);
 }
 
 .feedback-highlight {
@@ -414,9 +282,8 @@ li {
   }
 }
 
-/* ==============================
-    📱 Responsive Design
-============================== */
+/* Responsive Design */
+
 @media (max-width: 768px) {
   main {
     width: 100%;

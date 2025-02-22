@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// ✅ Firebase Configuration
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBXHfs546W38_wpb5hKIVatze-StM5NQQE",
   authDomain: "recipe-organizer-f9bc7.firebaseapp.com",
