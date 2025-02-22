@@ -1146,7 +1146,7 @@ export async function getApiKey() {
   }
 }
 
-// ✅ Ask Chatbot (Enhanced AI Mode)
+// ✅ Process User Input for AI
 export async function askChatBot(request) {
   if (!genAI || !model) {
     appendMessage("🚨 AI is still initializing... Please wait.");
@@ -1156,7 +1156,7 @@ export async function askChatBot(request) {
   try {
     appendMessage(`🧑‍💻 You: ${request}`);
 
-    // ✅ **Prepend context instructions instead of using system messages**
+    // ✅ **Prepend context instructions to improve AI responses**
     const formattedRequest = `
 This is a chatbot for a **Recipe Organizer app**. 
 - Users can add, edit, delete, and filter recipes. 
@@ -1173,7 +1173,7 @@ This is a chatbot for a **Recipe Organizer app**.
 
     console.log("🟡 AI Full Response:", result);
 
-    // ✅ Extract AI response
+    // ✅ Extract AI response correctly
     let aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!aiResponse || aiResponse.length < 5) {
@@ -1249,16 +1249,14 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleButton.addEventListener("click", () => {
     chatbotContainer.classList.toggle("chat-hidden");
 
-    // ✅ Update Button Symbol & Save State
     if (chatbotContainer.classList.contains("chat-hidden")) {
-      toggleButton.textContent = "+"; // "+" when minimized
+      toggleButton.textContent = "+";
       localStorage.setItem("chatHidden", "true");
     } else {
-      toggleButton.textContent = "-"; // "-" when open
+      toggleButton.textContent = "-";
       localStorage.setItem("chatHidden", "false");
     }
 
-    // ✅ Ensure Minimize Button is White
     toggleButton.style.color = "#ffffff";
   });
 });

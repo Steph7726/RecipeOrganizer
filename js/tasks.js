@@ -2612,23 +2612,20 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
-import { getApiKey, askChatBot } from "./chatbot.js"; // ✅ Ensures chatbot functions are properly imported
+import { getApiKey, askChatBot, handleChatInput } from "./chatbot.js";
 
-// ✅ Ensure everything initializes properly on page load
+// ✅ Ensure Everything Initializes Properly on Page Load
 document.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
   await getApiKey();
-  getRecipes();
+  getRecipes(); // ✅ Load recipes immediately on sign-in
 });
 
 // ✅ Setup Event Listeners
 function setupEventListeners() {
-  document.getElementById("send-btn")?.addEventListener("click", () => {
-    const chatInput = document.getElementById("chat-input").value.trim();
-    if (chatInput) {
-      askChatBot(chatInput);
-    }
-  });
+  document
+    .getElementById("send-btn")
+    ?.addEventListener("click", handleChatInput);
 
   document
     .getElementById("addRecipeBtn")
@@ -2638,7 +2635,7 @@ function setupEventListeners() {
     .getElementById("filterBtn")
     ?.addEventListener("click", filterRecipes);
 
-  // ✅ Add Enter Key Event Listeners for All Inputs
+  // ✅ Allow "Enter" key to submit forms
   ["recipeInput", "categoryInput", "ingredientsInput"].forEach((id) => {
     document.getElementById(id)?.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
@@ -2722,7 +2719,7 @@ async function addRecipe(name, category, ingredients) {
     getRecipes();
     showFeedbackMessage("✅ Recipe Added!");
 
-    // ✅ Reset Input Fields
+    // ✅ Clear input fields after adding
     document.getElementById("recipeInput").value = "";
     document.getElementById("categoryInput").value = "";
     document.getElementById("ingredientsInput").value = "";
@@ -2732,7 +2729,7 @@ async function addRecipe(name, category, ingredients) {
   }
 }
 
-// ✅ Delete Recipe (With Confirmation)
+// ✅ Delete Recipe
 window.deleteRecipe = async function (recipeId) {
   try {
     await deleteDoc(doc(db, "recipes", recipeId));
@@ -2744,7 +2741,7 @@ window.deleteRecipe = async function (recipeId) {
   }
 };
 
-// ✅ Edit Recipe (With Confirmation)
+// ✅ Edit Recipe
 window.editRecipe = async function (recipeId) {
   const newName = prompt("Enter new recipe name:");
   const newCategory = prompt("Enter new category:");
@@ -2769,7 +2766,7 @@ window.editRecipe = async function (recipeId) {
   }
 };
 
-// ✅ Toggle Favorite Recipe (With Confirmation)
+// ✅ Toggle Favorite Recipe
 window.toggleFavorite = async function (recipeId) {
   try {
     const recipeRef = doc(db, "recipes", recipeId);
@@ -2786,7 +2783,7 @@ window.toggleFavorite = async function (recipeId) {
   }
 };
 
-// ✅ Get Recipes (Ensures They Load on Sign-In)
+// ✅ Get Recipes
 async function getRecipes() {
   const email = JSON.parse(localStorage.getItem("email"));
   if (!email) return;
@@ -2801,7 +2798,7 @@ async function getRecipes() {
     const item = document.createElement("li");
     item.classList.add("recipe-card");
     item.innerHTML = `
-    <div class ="recipe-text">
+    <div class="recipe-text">
       <strong>${data.name}</strong> (${data.category})<br>
       Ingredients: ${data.ingredients.join(", ")}
     </div>
@@ -2827,10 +2824,40 @@ async function getRecipes() {
   }
 }
 
-// ✅ Fix Reset Filters
+// ✅ Filter Recipes
+async function filterRecipes() {
+  const ingredientFilter = document
+    .getElementById("ingredientFilter")
+    .value.toLowerCase();
+  const categoryFilter = document
+    .getElementById("categoryFilter")
+    .value.toLowerCase();
+
+  const q = query(
+    collection(db, "recipes"),
+    where("email", "==", JSON.parse(localStorage.getItem("email")))
+  );
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (
+      (!ingredientFilter ||
+        data.ingredients.some((ing) =>
+          ing.toLowerCase().includes(ingredientFilter)
+        )) &&
+      (!categoryFilter || data.category.toLowerCase().includes(categoryFilter))
+    ) {
+      list.appendChild(createRecipeItem(doc, data));
+    }
+  });
+}
+
+// ✅ Reset Filters
 function resetFilters() {
   document.getElementById("ingredientFilter").value = "";
   document.getElementById("categoryFilter").value = "";
   getRecipes();
-  showFeedbackMessage("✅ Filters Reset!");
 }
