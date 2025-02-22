@@ -2614,7 +2614,7 @@ import {
 } from "firebase/firestore";
 import { getApiKey, askChatBot, handleChatInput } from "./chatbot.js";
 
-// ✅ Ensure Everything Initializes Properly
+// ✅ Ensure DOM elements exist before executing
 document.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
   await getApiKey();
@@ -2633,15 +2633,12 @@ function setupEventListeners() {
   document
     .getElementById("addRecipeBtn")
     ?.addEventListener("click", addRecipeHandler);
-  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
   document
     .getElementById("filterBtn")
     ?.addEventListener("click", filterRecipes);
-  document
-    .getElementById("resetFiltersBtn")
-    ?.addEventListener("click", resetFilters);
+  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
 
-  // ✅ Allow "Enter" Key to Submit Forms
+  // ✅ Allow "Enter" key to submit forms
   ["recipeInput", "categoryInput", "ingredientsInput"].forEach((id) => {
     document.getElementById(id)?.addEventListener("keypress", (event) => {
       if (event.key === "Enter") {
@@ -2649,6 +2646,51 @@ function setupEventListeners() {
       }
     });
   });
+
+  document
+    .getElementById("ingredientFilter")
+    ?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("filterBtn")?.click();
+      }
+    });
+
+  document
+    .getElementById("categoryFilter")
+    ?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        document.getElementById("filterBtn")?.click();
+      }
+    });
+}
+
+// ✅ Show Feedback Messages
+function showFeedbackMessage(message, type = "success") {
+  const feedbackDiv = document.getElementById("feedback-message");
+  if (!feedbackDiv) return;
+
+  feedbackDiv.textContent = message;
+  feedbackDiv.classList.remove("hidden", "feedback-error");
+
+  if (type === "error") {
+    feedbackDiv.classList.add("feedback-error");
+  }
+
+  feedbackDiv.style.display = "block";
+
+  setTimeout(() => {
+    feedbackDiv.style.opacity = "0";
+    setTimeout(() => {
+      feedbackDiv.style.display = "none";
+      feedbackDiv.style.opacity = "1";
+    }, 500);
+  }, 2000);
+}
+
+// ✅ Sign Out Function
+function signOut() {
+  localStorage.removeItem("email");
+  window.location.href = "index.html";
 }
 
 // ✅ Add Recipe Handler
@@ -2662,31 +2704,97 @@ function addRecipeHandler() {
 
   if (name && category && ingredients.length > 0) {
     addRecipe(name, category, ingredients);
+  } else {
+    showFeedbackMessage("🚨 Please fill out all fields.", "error");
   }
 }
 
 // ✅ Add Recipe to Firestore
 async function addRecipe(name, category, ingredients) {
   const email = JSON.parse(localStorage.getItem("email"));
-  if (!email) return;
+  if (!email) {
+    showFeedbackMessage("You must be logged in to add recipes!", "error");
+    return;
+  }
 
-  await addDoc(collection(db, "recipes"), {
-    name,
-    category,
-    ingredients,
-    email,
-    favorite: false,
-    created_at: new Date(),
-  });
+  try {
+    await addDoc(collection(db, "recipes"), {
+      name,
+      category,
+      ingredients,
+      email,
+      favorite: false,
+      created_at: new Date(),
+    });
 
-  document.getElementById("recipeInput").value = "";
-  document.getElementById("categoryInput").value = "";
-  document.getElementById("ingredientsInput").value = "";
+    getRecipes();
+    showFeedbackMessage("✅ Recipe Added!");
 
-  getRecipes();
+    // ✅ Reset input fields after adding
+    document.getElementById("recipeInput").value = "";
+    document.getElementById("categoryInput").value = "";
+    document.getElementById("ingredientsInput").value = "";
+  } catch (error) {
+    console.error("🚨 Error adding recipe:", error);
+    showFeedbackMessage("🚨 Error adding recipe!", "error");
+  }
 }
 
-// ✅ Get Recipes (Fetches from Firestore Immediately on Login)
+// ✅ Delete Recipe
+window.deleteRecipe = async function (recipeId) {
+  try {
+    await deleteDoc(doc(db, "recipes", recipeId));
+    getRecipes();
+    showFeedbackMessage("🗑️ Recipe Deleted!");
+  } catch (error) {
+    console.error("🚨 Error deleting recipe:", error);
+    showFeedbackMessage("🚨 Could not delete recipe!", "error");
+  }
+};
+
+// ✅ Edit Recipe
+window.editRecipe = async function (recipeId) {
+  const newName = prompt("Enter new recipe name:");
+  const newCategory = prompt("Enter new category:");
+  const newIngredients = prompt("Enter new ingredients (comma-separated):");
+
+  if (newName && newCategory && newIngredients) {
+    try {
+      await updateDoc(doc(db, "recipes", recipeId), {
+        name: newName,
+        category: newCategory,
+        ingredients: newIngredients.split(","),
+      });
+
+      getRecipes();
+      showFeedbackMessage("✏️ Recipe Updated!");
+    } catch (error) {
+      console.error("🚨 Error updating recipe:", error);
+      showFeedbackMessage("🚨 Could not update recipe!", "error");
+    }
+  } else {
+    showFeedbackMessage("🚨 Please fill in all fields!", "error");
+  }
+};
+
+// ✅ Toggle Favorite Recipe
+window.toggleFavorite = async function (recipeId) {
+  try {
+    const recipeRef = doc(db, "recipes", recipeId);
+    const recipeSnapshot = await getDoc(recipeRef);
+    const currentFavorite = recipeSnapshot.data().favorite || false;
+
+    await updateDoc(recipeRef, { favorite: !currentFavorite });
+
+    getRecipes();
+    showFeedbackMessage(currentFavorite ? "⭐ Unfavorited!" : "⭐ Favorited!");
+  } catch (error) {
+    console.error("🚨 Error toggling favorite:", error);
+    showFeedbackMessage("🚨 Could not update favorite status!", "error");
+  }
+};
+
+// ✅ Get Recipes (Load on Sign-in)
 async function getRecipes() {
   const email = JSON.parse(localStorage.getItem("email"));
   if (!email) return;
@@ -2700,22 +2808,22 @@ async function getRecipes() {
     const data = doc.data();
     const item = document.createElement("li");
     item.innerHTML = `
-      <div class="recipe-text">
-        <strong>${data.name}</strong> (${data.category})<br>
-        Ingredients: ${data.ingredients.join(", ")}
-      </div>
-      <div class="recipe-buttons">
-        <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
-        <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
-        <button onclick="toggleFavorite('${doc.id}')">⭐ ${
+    <div class ="recipe-text">
+      <strong>${data.name}</strong> (${data.category})<br>
+      Ingredients: ${data.ingredients.join(", ")}
+    </div>
+    <div class="recipe-buttons">
+      <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
+      <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
+      <button onclick="toggleFavorite('${doc.id}')">⭐ ${
       data.favorite ? "Unfavorite" : "Favorite"
     }</button>
-      </div>
+    </div>
     `;
     list.appendChild(item);
   });
 
-  // ✅ Ensure Reset Button Stays
+  // ✅ Add Reset Filters Button
   let resetBtn = document.getElementById("resetFiltersBtn");
   if (!resetBtn) {
     resetBtn = document.createElement("button");
@@ -2731,4 +2839,13 @@ function resetFilters() {
   document.getElementById("ingredientFilter").value = "";
   document.getElementById("categoryFilter").value = "";
   getRecipes();
+  showFeedbackMessage("Filters reset!");
 }
+
+// ✅ Fix Minimize/Maximize Chatbot Button Color (White)
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleButton = document.getElementById("toggle-chatbot");
+  if (toggleButton) {
+    toggleButton.style.color = "#ffffff";
+  }
+});
