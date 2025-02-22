@@ -2314,7 +2314,7 @@ function resetFilters() {
   showFeedbackMessage("✅ Filters Reset!");
 }*/
 
-import { db } from "./firebase.js";
+/*import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -2598,4 +2598,151 @@ function ensureResetFilterButton() {
     resetBtn.addEventListener("click", resetFilters);
     document.getElementById("recipeList").parentElement.appendChild(resetBtn);
   }
+}*/
+
+import { db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import {
+  getApiKey,
+  askChatBot,
+  handleChatInput,
+  resetRecipeInputs,
+} from "./chatbot.js";
+
+// ✅ Ensure DOM elements exist before executing
+document.addEventListener("DOMContentLoaded", async () => {
+  setupEventListeners();
+  await getApiKey();
+  await getRecipes(); // ✅ Load recipes immediately on page load
+});
+
+// ✅ Setup Event Listeners
+function setupEventListeners() {
+  document
+    .getElementById("send-btn")
+    ?.addEventListener("click", handleChatInput);
+  document
+    .getElementById("addRecipeBtn")
+    ?.addEventListener("click", addRecipeHandler);
+  document.getElementById("signOutBttn")?.addEventListener("click", signOut);
+  document
+    .getElementById("filterBtn")
+    ?.addEventListener("click", filterRecipes);
+
+  // ✅ Allow "Enter" key to submit forms
+  ["recipeInput", "categoryInput", "ingredientsInput"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("addRecipeBtn")?.click();
+      }
+    });
+  });
+
+  document
+    .getElementById("ingredientFilter")
+    ?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("filterBtn")?.click();
+      }
+    });
+
+  document
+    .getElementById("categoryFilter")
+    ?.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("filterBtn")?.click();
+      }
+    });
+}
+
+// ✅ Apply Filters Properly
+async function filterRecipes() {
+  const ingredientFilter = document
+    .getElementById("ingredientFilter")
+    .value.trim()
+    .toLowerCase();
+  const categoryFilter = document
+    .getElementById("categoryFilter")
+    .value.trim()
+    .toLowerCase();
+
+  const email = JSON.parse(localStorage.getItem("email"));
+  if (!email) return;
+
+  const q = query(collection(db, "recipes"), where("email", "==", email));
+  const snapshot = await getDocs(q);
+  const list = document.getElementById("recipeList");
+  list.innerHTML = "";
+
+  let hasResults = false;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const matchesIngredient = ingredientFilter
+      ? data.ingredients.some((ing) =>
+          ing.toLowerCase().includes(ingredientFilter)
+        )
+      : true;
+    const matchesCategory = categoryFilter
+      ? data.category.toLowerCase().includes(categoryFilter)
+      : true;
+
+    if (matchesIngredient && matchesCategory) {
+      const item = document.createElement("li");
+      item.classList.add("recipe-card");
+      item.innerHTML = `
+        <div class="recipe-text">
+          <strong>${data.name}</strong> (${data.category})<br>
+          Ingredients: ${data.ingredients.join(", ")}
+        </div>
+        <div class="recipe-buttons">
+          <button onclick="deleteRecipe('${doc.id}')">❌ Delete</button>
+          <button onclick="editRecipe('${doc.id}')">✏️ Edit</button>
+          <button onclick="toggleFavorite('${doc.id}')">⭐ ${
+        data.favorite ? "Unfavorite" : "Favorite"
+      }</button>
+        </div>
+      `;
+      list.appendChild(item);
+      hasResults = true;
+    }
+  });
+
+  if (!hasResults) {
+    list.innerHTML = "<p>No recipes found matching your filters.</p>";
+  }
+
+  ensureResetFilterButton(); // ✅ Show Reset Filters Button When Needed
+}
+
+// ✅ Reset Filters Button Now Appears in the Right Place
+function ensureResetFilterButton() {
+  let resetBtn = document.getElementById("resetFiltersBtn");
+  if (!resetBtn) {
+    resetBtn = document.createElement("button");
+    resetBtn.id = "resetFiltersBtn";
+    resetBtn.textContent = "Reset Filters";
+    resetBtn.addEventListener("click", resetFilters);
+    document.getElementById("recipeList").parentElement.appendChild(resetBtn);
+  }
+}
+
+// ✅ Reset Filters
+function resetFilters() {
+  document.getElementById("ingredientFilter").value = "";
+  document.getElementById("categoryFilter").value = "";
+  getRecipes();
+  showFeedbackMessage("Filters reset!");
 }
