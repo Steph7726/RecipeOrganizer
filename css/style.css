@@ -271,21 +271,21 @@ li {
 }
 
 .edit-btn {
-  background-color: #a7c7e7; /* Light Blue-Gray */
+  background-color: #eaa74e; /* Light Blue-Gray */
   color: #0c5460;
 }
 
 .edit-btn:hover {
-  background-color: #90b8e0;
+  background-color: #ea9e3a;
 }
 
 .favorite-btn {
-  background-color: #f6d365; /* Golden Honey */
+  background-color: #eaa74e; /* Golden Honey */
   color: #5a3e1b;
 }
 
 .favorite-btn:hover {
-  background-color: #f4c44d;
+  background-color: #ea9e3a;
 }
 
 /* ==============================

@@ -1,4 +1,4 @@
-22418
+22422
 66C:\xampp\RecipeOrganizer\node_modules\undici-types\mock-agent.d.ts133842742041992451 0
 89C:\xampp\RecipeOrganizer\node_modules\firebase\compat\firestore\dist\esm\compat\app-check133842742077096468 1
 77C:\xampp\RecipeOrganizer\node_modules\@parcel\packager-css\src\CSSPackager.js133842742820925622 0
@@ -14,7 +14,7 @@
 45C:\xampp\RecipeOrganizer\node_modules\hash.js133842748977977788 1
 48C:\xampp\RecipeOrganizer\node_modules\parcel\src133842742821632069 1
 130C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\firestore\test\unit\local\web_storage_shared_client_state.test.d.ts133842742069468532 0
-29C:\xampp\RecipeOrganizer\docs133847137534944717 1
+29C:\xampp\RecipeOrganizer\docs133847145133232385 1
 52C:\xampp\RecipeOrganizer\node_modules\@types\connect133842742330578762 1
 84C:\xampp\RecipeOrganizer\node_modules\firebase\vertexai\dist\esm\vertexai\index.d.ts133842742104015097 0
 65C:\xampp\RecipeOrganizer\node_modules\fs-extra\lib\util\utimes.js133842742683459205 0
@@ -1406,7 +1406,7 @@
 58C:\xampp\RecipeOrganizer\node_modules\randomfill\README.md133842748976806968 0
 88C:\xampp\RecipeOrganizer\node_modules\caniuse-lite\data\features\subresource-bundling.js133842742830290068 0
 102C:\xampp\RecipeOrganizer\node_modules\firebase\compat\storage\dist\esm\compat\installations\index.d.ts133842742086924460 0
-38C:\xampp\RecipeOrganizer\js\chatbot.js133847136984599676 0
+38C:\xampp\RecipeOrganizer\js\chatbot.js133847145038757934 0
 79C:\xampp\RecipeOrganizer\node_modules\@firebase\auth\web-extension\package.json133842742044940947 0
 99C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\firestore\src\util\promise.d.ts133842742066424895 0
 99C:\xampp\RecipeOrganizer\node_modules\@firebase\remote-config\dist\esm\test\remote_config.test.d.ts133842742042934252 0
@@ -4927,6 +4927,7 @@
 57C:\xampp\RecipeOrganizer\node_modules\strip-ansi\index.js133842742038497906 0
 64C:\xampp\RecipeOrganizer\node_modules\async\internal\parallel.js133842742684070433 0
 55C:\xampp\RecipeOrganizer\node_modules\once\package.json133842742329895635 0
+52C:\xampp\RecipeOrganizer\docs\index.7314a9d0.css.map133847145133203367 0
 77C:\xampp\RecipeOrganizer\node_modules\firebase\database\dist\index.cjs.js.map133842742050843584 0
 85C:\xampp\RecipeOrganizer\node_modules\@opentelemetry\api\build\esm\api\propagation.js133842742336407004 0
 60C:\xampp\RecipeOrganizer\node_modules\string_decoder\LICENSE133842742329895635 0
@@ -6287,6 +6288,7 @@
 80C:\xampp\RecipeOrganizer\node_modules\firebase\compat\performance\dist\app-check133842742084227548 1
 57C:\xampp\RecipeOrganizer\node_modules\jose\dist\types\jwt133842742338665267 1
 55C:\xampp\RecipeOrganizer\node_modules\path-type\license133842742682900208 0
+48C:\xampp\RecipeOrganizer\docs\index.7314a9d0.css133847145132776930 0
 73C:\xampp\RecipeOrganizer\node_modules\firebase\database\dist\index.cjs.js133842742045409531 0
 74C:\xampp\RecipeOrganizer\node_modules\@grpc\grpc-js\src\channel-options.ts133842742047401404 0
 96C:\xampp\RecipeOrganizer\node_modules\@google-cloud\firestore\build\src\reference\constants.d.ts133842742336630493 0
@@ -7597,7 +7599,7 @@
 79C:\xampp\RecipeOrganizer\node_modules\@grpc\grpc-js\src\subchannel-interface.ts133842742050429714 0
 86C:\xampp\RecipeOrganizer\node_modules\eslint\lib\rules\prefer-promise-reject-errors.js133842748981561975 0
 112C:\xampp\RecipeOrganizer\node_modules\@parcel\core\test\fixtures\config-extends-not-found\.parcelrc-node-modules133842742822675794 0
-40C:\xampp\RecipeOrganizer\docs\index.html133847137534501152 0
+40C:\xampp\RecipeOrganizer\docs\index.html133847145132771730 0
 74C:\xampp\RecipeOrganizer\node_modules\lmdb\dependencies\lz4\lib\lz4frame.h133842742824966337 0
 84C:\xampp\RecipeOrganizer\node_modules\@swc\helpers\esm\_class_private_method_init.js133842742825070415 0
 81C:\xampp\RecipeOrganizer\node_modules\lmdb\dependencies\lz4\lib\lz4frame_static.h133842742824956262 0
@@ -9061,7 +9063,7 @@
 78C:\xampp\RecipeOrganizer\node_modules\google-gax\node_modules\uuid\dist\rng.js133842742333413104 0
 87C:\xampp\RecipeOrganizer\node_modules\google-gax\node_modules\uuid\dist\sha1-browser.js133842742333513452 0
 79C:\xampp\RecipeOrganizer\node_modules\google-gax\node_modules\uuid\dist\sha1.js133842742333686217 0
-38C:\xampp\RecipeOrganizer\css\style.css133847047851962384 0
+38C:\xampp\RecipeOrganizer\css\style.css133847143733095595 0
 80C:\xampp\RecipeOrganizer\node_modules\@grpc\grpc-js\build\src\call-number.js.map133842742045409531 0
 84C:\xampp\RecipeOrganizer\node_modules\google-gax\node_modules\uuid\dist\stringify.js133842742333826869 0
 79C:\xampp\RecipeOrganizer\node_modules\firebase\database\dist\esm\app\index.d.ts133842742089149978 0
@@ -20128,6 +20130,7 @@
 82C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\index.node.mjs133842742047437370 0
 86C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\index.node.mjs.map133842742046900526 0
 87C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\index.rn.esm2017.js133842742044279502 0
+47C:\xampp\RecipeOrganizer\docs\index.74cf3f74.js133847145132787344 0
 91C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\index.rn.esm2017.js.map133842742047004882 0
 81C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\internal.d.ts133842742064762213 0
 81C:\xampp\RecipeOrganizer\node_modules\@firebase\firestore\dist\lite\firestore\src133842742069219972 1
@@ -20998,6 +21001,7 @@
 104C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\esm\auth-compat\src\popup_redirect.d.ts133842742044137177 0
 109C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\esm\auth-compat\src\popup_redirect.test.d.ts133842742044195695 0
 108C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\esm\auth-compat\src\recaptcha_verifier.d.ts133842742044269438 0
+51C:\xampp\RecipeOrganizer\docs\index.74cf3f74.js.map133847145133227276 0
 105C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\esm\auth-compat\src\user_credential.d.ts133842742044360374 0
 94C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\esm\auth-compat\src\wrap.d.ts133842742044505200 0
 87C:\xampp\RecipeOrganizer\node_modules\@firebase\auth-compat\dist\auth-compat\index.d.ts133842742043473641 0
@@ -22412,7 +22416,7 @@
 47C:\xampp\RecipeOrganizer\docs\index.c444c18d.js133847121966815391 0
 51C:\xampp\RecipeOrganizer\docs\index.c444c18d.js.map133847121967008324 0
 64C:\xampp\RecipeOrganizer\docs\pexels-goumbik-616401.59007e8f.jpg133847116684917098 0
-40C:\xampp\RecipeOrganizer\docs\tasks.html133847137534516650 0
+40C:\xampp\RecipeOrganizer\docs\tasks.html133847145132787344 0
 33C:\xampp\RecipeOrganizer\docs\up_133847116669604284 1
 54C:\xampp\RecipeOrganizer\docs\up_\js\service-worker.js133847116669694607 0
 42C:\xampp\RecipeOrganizer\.github\workflows133842739609767185 1
